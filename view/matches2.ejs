@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="nl">
+<%- include ('head2.ejs') %>
+<title>Matches - Bamboos</title>
+<body>
+  <%- include ('header.ejs') %>
+  <h1>Matches</h1>
+  <% for (var index = 0; index < data.length; index++) { %>
+  <h2><a href="/<%= data[index]._id %>"><%= data[index].naam %></a></h2>
+  <p><%= data[index].leeftijd %></p>
+  <% } %>
+</body>
+</html>

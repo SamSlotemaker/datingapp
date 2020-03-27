@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="nl">
+<%- include ('head2.ejs') %>
+<title>Profiel aanmaken - Bamboos</title>
+<h1>Profiel aanmaken</h1>
+<form action=/ method=post enctype=multipart/form-data>
+  <label>
+    Foto
+    <input
+      name=foto
+      type=file
+      accept=image/*
+    >
+  </label>
+  <label>Naam<input name=naam></label>
+  <label>
+    leeftijd
+    <input name=leeftijd>
+  </label>
+  <label>
+    <textarea
+      name=bio
+      rows=5
+    ></textarea>
+  </label>
+  <button>Add</button>
+</form>
+</html>
