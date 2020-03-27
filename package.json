@@ -1,0 +1,21 @@
+{
+  "name": "datingapp",
+  "version": "0.0.0",
+  "private": true,
+  "main": "server.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "node server.js",
+    "test": "nodemon server.js"
+  },
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "ejs": "^3.0.1",
+    "express": "~4.16.1",
+    "express-session": "^1.17.0",
+    "mongodb": "^3.5.4"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.2"
+  }
+}

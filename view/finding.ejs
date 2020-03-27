@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('head.ejs') %>
+
+<body>
+
+    <%- include('header.ejs') %>
+
+    <main>
+        <section class="choice">
+            <form action="/postQuestionAnswers" method="POST" id="carForm">
+                <h1>Choose one</h1>
+                <h2>Pick the one you like to most, to find your match!</h2>
+                <div>
+                    <div class="tab">
+                        <label>
+                            <input type="radio" name="car1" value="1">
+                            <img src=<%= data.imageUrl1 %> alt="image of car one" width='100%' ;>
+                        </label>
+
+                        <img src="images/icons/like.svg" alt="heart image" class="heart">
+
+                        <label>
+                            <input type="radio" name="car1" value="2">
+                            <img src=<%= data.imageUrl2 %> alt="image of car two">
+                        </label>
+                    </div>
+
+                    <div class="tab">
+                        <label>
+                            <input type="radio" name="car2" value="1">
+                            <img src=<%= data.imageUrl3 %> alt="image of car one" width='100%' ;>
+                        </label>
+
+                        <img src="images/icons/like.svg" alt="heart image" class="heart">
+
+                        <label>
+                            <input type="radio" name="car2" value="2">
+                            <img src=<%= data.imageUrl4 %> alt="image of car two width='100%'">
+                        </label>
+                    </div>
+
+                    <div class="tab">
+                        <label>
+                            <input type="radio" name="car3" value="1">
+                            <img src=<%= data.imageUrl5 %> alt="image of car one" width='100%' ;>
+                        </label>
+
+                        <img src="images/icons/like.svg" alt="heart image" class="heart">
+
+                        <label>
+                            <input type="radio" name="car3" value="2">
+                            <img src=<%= data.imageUrl6 %> alt="image of car two width='100%'">
+                        </label>
+                    </div>
+                </div>
+                <button type="submit" onclick="nextPrev(1)">Next question</button>
+            </form>
+        </section>
+    </main>
+
+
+    <%- include('footer.ejs') %>
+    <script src="/script/script.js"></script>
+</body>
+
+</html>

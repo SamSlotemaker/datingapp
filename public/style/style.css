@@ -1,0 +1,262 @@
+@import url('https://fonts.googleapis.com/css?family=Montserrat:100,300,400,500,600,700,900&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Lobster&display=swap');
+
+/* mobile first */
+* {
+  font-family: 'Montserrat', sans-serif;
+  box-sizing: border-box;
+
+}
+
+body {
+  margin: 0;
+  background-color: black;
+  color: black;
+
+}
+
+h1 {
+  color: #d01257;
+  text-align: center;
+  font-family: 'Lobster', cursive;
+  font-size: 2em;
+  margin: 0.5em auto 0em auto;
+}
+
+h2 {
+  margin-top: 0;
+  color: #fb90b7;
+  text-align: center;
+  font-size: 1.3em;
+  font-weight: 400;
+}
+
+h3 {
+  color: #D75A4A;
+  text-align: center;
+}
+
+p {
+  color: #D75A4A;
+}
+
+ul li {
+  list-style-type: none;
+  color: #D75A4A;
+}
+
+a {
+  color: rgb(83, 153, 180);
+  text-decoration: none;
+}
+
+.linkButton {
+  display: block;
+}
+
+/* NAVIGATION */
+nav ul {
+  padding: 0 1em 0 1em;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+nav img {
+  width: 2.5em;
+}
+
+
+
+/* CHOICE SCREEN */
+.choice a {
+  display: block;
+}
+
+.choice div {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.choice img {
+  display: block;
+  height: 70vw;
+  width: 100%;
+  object-fit: cover;
+  margin: 0;
+}
+
+.choice label img {
+  filter: brightness(50%)
+}
+
+.choice label:first-of-type img {
+  border-bottom: solid 2px #D75A4A;
+  border-radius: 4% 4% 0% 0%;
+}
+
+.choice label:last-of-type img {
+  border-top: solid 2px #D75A4A;
+  border-radius: 0% 0% 4% 4%;
+}
+
+.choice .heart {
+  top: 50%;
+  height: auto;
+  width: 3em;
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+}
+
+.choice form>button,
+.linkButton {
+  /* border-style: none; */
+  padding: 0.5em 1em;
+  background-color: black;
+  border: solid 2px #d01257;
+  font-family: 'Lobster';
+  color: #d01257;
+  display: block;
+  font-size: 1.5em;
+  margin: 0.5em auto;
+  width: 50%;
+  text-align: center;
+}
+
+
+/* RADIO BUTTON STYLING */
+
+/* HIDE RADIO */
+[type=radio] { 
+  position: absolute; 
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* IMAGE STYLES */
+[type=radio]+img {
+  cursor: pointer;
+}
+
+/* CHECKED STYLES */
+[type=radio]:checked+img {
+  filter: brightness(100%)
+}
+
+
+
+
+/* PROGRESSIVE FORM */
+
+/* .choice .tab {
+  display: none;
+} */
+
+/* Mark the active step: */
+.step.active {
+  opacity: 1;
+}
+
+
+/* LIST */
+.list p {
+  text-align: center;
+}
+
+.list section {
+  margin: 5em auto;
+}
+
+.list ul {
+  padding: 0;
+  display: flex;
+  justify-content: center;
+}
+
+.list li {
+  text-align: center;
+  margin: 0.5em;
+}
+
+.answerList img {
+
+  object-fit: cover;
+  height: 5em;
+  width: 5em;
+}
+
+.formulier {
+  margin-top: 4em;
+}
+
+.formulier input {
+padding: 1em;
+color: #d01257;
+background-color: black;
+border: 2px #d01257 solid;
+margin: auto;
+display: block;
+}
+
+.formulier button {
+  width: 25%;
+}
+
+/* MIDDLE SCREENS */
+@media screen and (min-width: 500px) {
+  .choice {
+    max-width: 80%;
+    margin: auto;
+  }
+}
+
+
+/* BIG SCREENS */
+@media screen and (min-width: 1000px) {
+  .choice div label {
+    width: 50%;
+  }
+
+  .choice {
+    max-width: 60%;
+    margin: auto;
+  }
+
+  .choice div {
+    display: flex;
+    flex-direction: row;
+    position: relative;
+  }
+
+  .choice img {
+    max-height: 30vw;
+    margin: auto;
+    /* width: 50%; */
+  }
+
+
+  .choice label:first-of-type img {
+    border-bottom: none;
+    border-right: solid 2px #D75A4A;
+    border-radius: 4% 0% 0% 4%;
+  }
+
+  .choice label:last-of-type img {
+    border-top: none;
+    border-left: solid 2px #D75A4A;
+    border-radius: 0% 4% 4% 0%;
+  }
+
+  .choice .heart {
+
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+
+  }
+
+}

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="520" height="520" viewBox="0 0 520 520">
+  <defs>
+    <clipPath id="clip-chat">
+      <rect width="520" height="520"/>
+    </clipPath>
+  </defs>
+  <g id="chat" clip-path="url(#clip-chat)">
+    <g id="_004-chat-56" data-name="004-chat-56" transform="translate(25 24.4)">
+      <path id="Path_1" data-name="Path 1" d="M235.3,0C105.561,0,0,105.561,0,235.3A232.5,232.5,0,0,0,36.707,361.421l-35.648,89a14.7,14.7,0,0,0,19.118,19.118l89-35.648A232.5,232.5,0,0,0,235.3,470.6c129.738,0,235.3-105.561,235.3-235.3S365.039,0,235.3,0Z" fill="#d01257"/>
+      <g id="Group_1" data-name="Group 1" transform="translate(117.65 176.475)">
+        <path id="Path_2" data-name="Path 2" d="M260.356,317.413H142.706a14.706,14.706,0,1,1,0-29.413h117.65a14.706,14.706,0,0,1,0,29.413Z" transform="translate(-128 -199.763)" fill="#fafafa"/>
+        <path id="Path_3" data-name="Path 3" d="M348.594,221.412H142.706a14.706,14.706,0,1,1,0-29.412H348.594a14.706,14.706,0,0,1,0,29.412Z" transform="translate(-128 -192)" fill="#fafafa"/>
+      </g>
+    </g>
+  </g>
+</svg>
