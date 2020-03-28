@@ -11,7 +11,7 @@
 body {
   margin: 0;
   background-color: black;
-  color: black;
+  color: #fb90b7;
 
 }
 
@@ -37,7 +37,7 @@ h3 {
 }
 
 p {
-  color: #D75A4A;
+  color: inherit;
 }
 
 ul li {
@@ -205,6 +205,22 @@ display: block;
 .formulier button {
   width: 25%;
 }
+
+
+.add-profile {
+  color: #fb90b7;
+}
+
+.add-profile label {
+  display: block;
+  margin: 2em;
+}
+
+.add-profile input {
+  margin-left: 1em;
+}
+
+
 
 /* MIDDLE SCREENS */
 @media screen and (min-width: 500px) {

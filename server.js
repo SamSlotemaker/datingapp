@@ -242,7 +242,7 @@ function profile(req, res, next) {
 }
 
 function form(req, res) {
-  res.render('add.ejs')
+  res.render('add.ejs', {data})
 }
 
 function add(req, res, next) {
