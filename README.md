@@ -16,7 +16,7 @@
 Mijn applicatie is een datingapp, waar gebruikers vragen beantwoorden en zo kunnen matchen met mensen die een soortgelijke interesse hebben. 
 
 ### Feature
-De gebruiker kiest zijn favoriet tussen twee foto's, om zo zijn interesses aan te geven. In totaal worden er 3 foto's gekozen. Hierna wordt de gebruiker gematcht met andere gebruikers waarvan de antwoorden overkomen.  
+De gebruiker maakt een account aan en logt vervolgens in met zijn gegevens. Wanneer deze is ingelogd maakt hij een profiel aan, waarna hij uit bepaalde foto's kan kiezen om zijn interesses aan te geven. Hierna worden zijn matches getoond (antwoorden van gebruikers komen 100% overeen) en kan hij zijn matches bekijken op een detailscherm. 
 
 ## Getting started
 ### Installatie
@@ -48,8 +48,10 @@ De app draait op localhost:3000
 ## Documentatie
 De documentatie van mijn onderzoek en het proces kunt u vinden op mijn [wiki](https://github.com/SamSlotemaker/blok_tech/wiki)
 
-## Auteur
+## Auteurs
 * **Sam Slotemaker** 
+* **Max Wieringa**
+* **Sjoerd Bindels**
 
 ## Licensie
 Dit project is gelicenseerd onder de MIT license. Zie het [LICENSE.md](LICENSE.md) bestand voor meer informatie.
