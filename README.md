@@ -48,8 +48,10 @@ De app draait op localhost:3000
 ## Documentatie
 De documentatie van mijn onderzoek en het proces kunt u vinden op mijn [wiki](https://github.com/SamSlotemaker/blok_tech/wiki)
 
-## Auteur
+## Auteurs
 * **Sam Slotemaker** 
+* **Max Wieringa**
+* **Sjoerd Bindels**
 
 ## Licensie
 Dit project is gelicenseerd onder de MIT license. Zie het [LICENSE.md](LICENSE.md) bestand voor meer informatie.
