@@ -7,6 +7,8 @@ const ejs = require('ejs')
 const mongo = require('mongodb')
 const multer = require('multer')
 const ejsLint = require('ejs-lint')
+const bodyparser = require("body-parser");
+
 const upload = multer({
   dest: 'public/upload/'
 })
@@ -26,6 +28,7 @@ client.connect(function (err, client) {
   if (err) {
     throw err
   }
+  collectionUsers = client.db("datingapp").collection("users")
   collectionAnswers = client.db("datingapp").collection("userAnswers");
   collectionProfiles = client.db("datingapp").collection('profiles')
 })
@@ -44,13 +47,20 @@ app
     saveUninitialized: false,
     resave: false
   }))
-  .get('/finding', findMatch)
+  .use(bodyparser.urlencoded({
+    extended: true
+  }))
+  .get("/register", Registratieform)
+  .post("/registerUser", registerUser)
+  .get("/login", loginForm)
+  .post("/login", loginUser)
+  .get('/findMatch', findMatch)
   .post('/postQuestionAnswers', postQuestionAnswers)
-  .get('/matches', matchesPage)
+  .get('/overview', matchesPage)
   .post('/changeName', changeUserName)
-  .get('/start', matches)
-  .post('/', upload.single('foto'), add)
-  .get('/add', form)
+  .get('/matches', matches)
+  .post('/', upload.single('foto'), createAccountInformation)
+  .get('/createUser', createUser)
   .get('/:id', profile)
   .delete('/:id', remove)
   .use(notFound)
@@ -79,40 +89,114 @@ function fillImages() {
 }
 fillImages();
 
-//find match pagina
-function findMatch(req, res, next) {
-  //delete de huidige antwoorden van de ingelogde gebruiker
-  collectionAnswers.deleteOne({
-    user: req.session.user
-  }, done)
+
+
+//LOGIN / REGISTRATIE
+// VAN TESS
+function loginForm(req, res) {
+  res.render("login.ejs", {
+    data
+  });
+}
+
+function loginUser(req, res) {
+  res.redirect("/createUser")
+}
+
+function Registratieform(req, res) {
+  res.render("registratie.ejs", {
+    data
+  });
+}
+
+function registerUser(req, res, next) {
+  collectionUsers.insertOne({
+      naam: req.body.username,
+      email: req.body.emailadres,
+      wachtwoord: req.body.wachtwoord
+    },
+    done
+  );
 
   function done(err, useData) {
     if (err) {
-      next(err)
+      next(err);
     } else {
-      req.session.user = "SamSloot";
-      res.render('finding.ejs', {
-        data
-      })
+      req.session.user = req.body.username;
+      res.redirect("/login");
+    }
+  }
+}
+
+
+function createUser(req, res) {
+  res.render('createUser.ejs', {
+    data
+  })
+}
+
+function createAccountInformation(req, res, next) {
+  if (!req.session.user) {
+    res.redirect('/login')
+  } else {
+    collectionProfiles.insertOne({
+      naam: req.body.naam,
+      foto: req.file ? req.file.filename : null,
+      leeftijd: req.body.leeftijd,
+      bio: req.body.bio
+    }, done)
+
+    function done(err, data) {
+      if (err) {
+        next(err)
+      } else {
+        res.redirect('/findMatch')
+        // res.redirect('/' + data.insertedId)
+      }
+    }
+  }
+}
+
+//find match pagina
+function findMatch(req, res, next) {
+  if (!req.session.user) {
+    res.redirect('/login')
+  } else {
+    //delete de huidige antwoorden van de ingelogde gebruiker
+    collectionAnswers.deleteOne({
+      user: req.session.user
+    }, done)
+
+    function done(err, useData) {
+      if (err) {
+        next(err)
+      } else {
+        res.render('findMatch.ejs', {
+          data
+        })
+      }
     }
   }
 }
 
 //verzenden van image op antwoorden van vraag
 function postQuestionAnswers(req, res, next) {
+  if (!req.session.user) {
+    res.redirect('/login')
+  } else {
+    collectionAnswers.insertOne({
+      user: req.session.user,
+      answerOne: req.body.car1,
+      answerTwo: req.body.car2,
+      answerThree: req.body.car3
+    }, done);
 
-  collectionAnswers.insertOne({
-    user: req.session.user,
-    answerOne: req.body.car1,
-    answerTwo: req.body.car2,
-    answerThree: req.body.car3
-  }, done);
-
-  function done(err, data) {
-    if (err) {
-      next(err)
-    } else {
-      res.redirect('/matches')
+    function done(err, data) {
+      if (err) {
+        next(err)
+      } else {
+        res.redirect('/overview')
+      }
     }
   }
 }
@@ -120,33 +204,36 @@ function postQuestionAnswers(req, res, next) {
 
 //pagina waarop je je matches kunt zien
 function matchesPage(req, res, next) {
-  req.session.user = "SamSloot";
-  console.log(req.session.user);
-  collectionAnswers.findOne({
-    user: req.session.user
-  }, done)
+  if (!req.session.user) {
+    res.redirect('/login')
+  } else {
+    console.log(req.session.user);
+    collectionAnswers.findOne({
+      user: req.session.user
+    }, done)
 
-  function done(err, useData) {
-    data.user = useData;
+    function done(err, useData) {
+      data.user = useData;
 
-    if (err) {
-      next(err)
-    } else {
-      //verkrijg de url's van de user antwoorden
-      if (data.user.answerOne == 1) {
-        data.user.answerOneImg = images[0]
+      if (err) {
+        next(err)
       } else {
-        data.user.answerOneImg = images[1]
-      }
-      if (data.user.answerTwo == 1) {
-        data.user.answerTwoImg = images[2]
-      } else {
-        data.user.answerTwoImg = images[3]
-      }
-      if (data.user.answerThree == 1) {
-        data.user.answerThreeImg = images[4]
-      } else {
-        data.user.answerThreeImg = images[5]
+        //verkrijg de url's van de user antwoorden
+        if (data.user.answerOne == 1) {
+          data.user.answerOneImg = images[0]
+        } else {
+          data.user.answerOneImg = images[1]
+        }
+        if (data.user.answerTwo == 1) {
+          data.user.answerTwoImg = images[2]
+        } else {
+          data.user.answerTwoImg = images[3]
+        }
+        if (data.user.answerThree == 1) {
+          data.user.answerThreeImg = images[4]
+        } else {
+          data.user.answerThreeImg = images[5]
+        }
       }
 
       //verzamel alle users die niet gelijk zijn aan de huidige gebruiker en stop ze in een array
@@ -180,27 +267,31 @@ function matchesPage(req, res, next) {
 
 function changeUserName(req, res, next) {
 
-  //find de huidige gebruiker in de database en update zijn naam naar de nieuw ingevulde naam
-  collectionAnswers.findOneAndUpdate({
-    user: req.session.user
-  }, {
-    $set: {
-      user: req.body.newName
-    }
-  }, done)
+  if (!req.session.user) {
+    res.redirect('/login')
+  } else {
+    //find de huidige gebruiker in de database en update zijn naam naar de nieuw ingevulde naam
+    collectionAnswers.findOneAndUpdate({
+      user: req.session.user
+    }, {
+      $set: {
+        user: req.body.newName
+      }
+    }, done)
 
-  function done(err, useData) {
-    //verander de session van de gebruiker samen met het gerenderde data object
-    req.session.user = req.body.newName;
-    data.user.user = req.session.user;
+    function done(err, useData) {
+      //verander de session van de gebruiker samen met het gerenderde data object
+      req.session.user = req.body.newName;
+      data.user.user = req.session.user;
 
-    if (err) {
-      next(err)
-    } else {
-      //render de pagina opnieuw om de nieuwe naam van de gebruiker te tonen
-      res.render('matches.ejs', {
-        data
-      });
+      if (err) {
+        next(err)
+      } else {
+        //render de pagina opnieuw om de nieuwe naam van de gebruiker te tonen
+        res.render('matches.ejs', {
+          data
+        });
+      }
     }
   }
 }
@@ -209,75 +300,63 @@ function changeUserName(req, res, next) {
 //FEATURE MAX
 //******************* */
 function matches(req, res, next) {
-  collectionProfiles.find().toArray(done)
+  if (!req.session.user) {
+    res.redirect('/login')
+  } else {
+    collectionProfiles.find().toArray(done)
 
-  function done(err, data) {
-    if (err) {
-      next(err)
-    } else {
-      console.log(data)
-      res.render('matches2.ejs', {
-        data: data
-      })
+    function done(err, data) {
+      if (err) {
+        next(err)
+      } else {
+        console.log(data)
+        res.render('matches2.ejs', {
+          data: data
+        })
+      }
     }
   }
 }
 
-function profile(req, res, next) {
-  let id = req.params.id
+  function profile(req, res, next) {
+    let id = req.params.id
 
-  collectionProfiles.findOne({
-    _id: new mongo.ObjectID(id)
-  }, done)
+    collectionProfiles.findOne({
+      _id: new mongo.ObjectID(id)
+    }, done)
 
-  function done(err, data) {
-    if (err) {
-      next(err)
-    } else {
-      res.render('detail.ejs', {
-        data: data
-      })
+    function done(err, data) {
+      if (err) {
+        next(err)
+      } else {
+        res.render('detail.ejs', {
+          data: data
+        })
+      }
     }
   }
-}
 
-function form(req, res) {
-  res.render('add.ejs', {data})
-}
-
-function add(req, res, next) {
-  collectionProfiles.insertOne({
-    naam: req.body.naam,
-    foto: req.file ? req.file.filename : null,
-    leeftijd: req.body.leeftijd,
-    bio: req.body.bio
-  }, done)
-
-  function done(err, data) {
-    if (err) {
-      next(err)
-    } else {
-      res.redirect('/' + data.insertedId)
-    }
-  }
-}
 
 function remove(req, res, next) {
-  var id = req.params.id
+  if (!req.session.user) {
+    res.redirect('/login')
+  } else {
+    var id = req.params.id
 
-  collectionProfiles.deleteOne({
-    _id: new mongo.ObjectID(id)
-  }, done)
+    collectionProfiles.deleteOne({
+      _id: new mongo.ObjectID(id)
+    }, done)
 
-  function done(err) {
-    if (err) {
-      next(err)
-    } else {
-      // res.redirect('/start')
-      res.json({
-        status: 'ok'
-      })
-    
+    function done(err) {
+      if (err) {
+        next(err)
+      } else {
+
+        res.json({
+          status: 'ok'
+        })
+
+      }
     }
   }
 }

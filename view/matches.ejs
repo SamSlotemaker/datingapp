@@ -4,7 +4,7 @@
 
 <body>
 
-    <%- include('header2.ejs') %>
+    <%- include('header.ejs') %>
 
     <main class="list">
 
@@ -25,20 +25,20 @@
         <section>
             <h3>Je bent gematcht met:</h3>
             <ul>
-            <% for (var index = 0; index < data.matches.length; index++) { %>
-            <li>
-                <%= data.matches[index].user %>
-            </li>
+                <% for (var index = 0; index < data.matches.length; index++) { %>
+                <li>
+                    <%= data.matches[index].user %>
+                </li>
 
-            <% } %>
-        </ul>
+                <% } %>
+            </ul>
         </section>
-
-        <a class="linkButton" href="/finding">Try again</a>
+        <a href="/matches">See matches</a>
+        <a class="linkButton" href="/findMatch">Try again</a>
 
         <form action="/changeName" method="POST" class="formulier">
-        <input type="text" name="newName">
-        <button type="submit" class="linkButton">Verander naam</button>
+            <input type="text" name="newName">
+            <button type="submit" class="linkButton">Verander naam</button>
         </form>
     </main>
 

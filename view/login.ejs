@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include('head.ejs') %>
+
+<body>
+  <h1>Inloggen</h1>
+  <form action="/login" method="post" class="login">
+
+    <fieldset>
+      <label for="emailadres">emailadres</label>
+      <input type="email" name="emailadres" placeholder="emailadres" id="emailadres">
+    </fieldset>
+
+    <fieldset>
+      <label for="pass">Wachtwoord</label>
+      <input type="password" id="pass" name="wachtwoord" required>
+    </fieldset>
+    <button type="submit" name="button">inloggen</button>
+
+  </form>
+
+  <a href="/register">registreren</a>
+</body>
+
+</html>

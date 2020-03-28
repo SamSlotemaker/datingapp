@@ -66,6 +66,47 @@ nav img {
   width: 2.5em;
 }
 
+/* LOGIN SCREEN */
+.login label {
+  display: block;
+  text-align: center;
+  margin: 0.5em;
+}
+
+.login fieldset {
+  border: none;
+  margin: 1em;
+}
+
+.login input {
+  border: 2px solid #eee;
+  background-color: #ffffff;
+  outline: none;
+  width: 60vw;
+  padding: 0 10px;
+  box-sizing: border-box;
+  height: 3.5em;
+  font-size: 0.7em;
+  font-weight: 400;
+  display: block;
+  margin: 0 auto;
+}
+
+.login button {
+  display: block;
+  padding: 1em 1.5em;
+  font-size: 1em;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #fff;
+  background-color: #000;
+  border-color: #000;
+  border-radius: 5em;
+  text-align: center;
+  margin: 0 auto;
+  width: 10em;
+}
+
 
 
 /* CHOICE SCREEN */
@@ -130,8 +171,8 @@ nav img {
 /* RADIO BUTTON STYLING */
 
 /* HIDE RADIO */
-[type=radio] { 
-  position: absolute; 
+[type=radio] {
+  position: absolute;
   opacity: 0;
   width: 0;
   height: 0;
@@ -194,12 +235,12 @@ nav img {
 }
 
 .formulier input {
-padding: 1em;
-color: #d01257;
-background-color: black;
-border: 2px #d01257 solid;
-margin: auto;
-display: block;
+  padding: 1em;
+  color: #d01257;
+  background-color: black;
+  border: 2px #d01257 solid;
+  margin: auto;
+  display: block;
 }
 
 .formulier button {
@@ -207,6 +248,7 @@ display: block;
 }
 
 
+/* PROFIEL TOEVOEGEN */
 .add-profile {
   color: #fb90b7;
 }
@@ -220,6 +262,19 @@ display: block;
   margin-left: 1em;
 }
 
+/* PROFILE PAGINA */
+.profile:first-of-type {
+  margin-top: 3em;
+}
+
+.profile {
+  border-bottom: solid 2px #d01257;
+  padding: 2em 0em;
+}
+
+.profile p {
+  text-align: center;
+}
 
 
 /* MIDDLE SCREENS */
