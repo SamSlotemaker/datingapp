@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const port = 3000;
+const port = 4000;
 require('dotenv').config();
 const session = require('express-session');
 const ejs = require('ejs')
@@ -242,7 +242,7 @@ function profile(req, res, next) {
 }
 
 function form(req, res) {
-  res.render('add.ejs')
+  res.render('add.ejs', {data})
 }
 
 function add(req, res, next) {
