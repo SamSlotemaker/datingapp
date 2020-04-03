@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const port = 4000;
+const port = 3000;
 require('dotenv').config();
 const session = require('express-session');
 const ejs = require('ejs')
@@ -320,6 +320,7 @@ function matches(req, res, next) {
 
   function profile(req, res, next) {
     let id = req.params.id
+    console.log(id + "test het id");
 
     collectionProfiles.findOne({
       _id: new mongo.ObjectID(id)
