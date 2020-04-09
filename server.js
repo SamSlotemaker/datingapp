@@ -4,35 +4,62 @@ const port = 3000;
 require("dotenv").config();
 const session = require("express-session");
 const ejs = require("ejs");
-const mongo = require("mongodb");
+const mongodb = require("mongodb");
 const multer = require("multer");
 const ejsLint = require("ejs-lint");
+const bodyparser = require("body-parser");
+const bcrypt = require("bcrypt");
+const saltRounds = 10;
+const plainTextPassword = "dit_is_niet_mijn_wachtwoord";
 const upload = multer({
-  dest: "public/upload/"
+  dest: "public/upload/",
 });
 
 //database configuratie
-let collectionAnswers = null;
-let db;
-let collectionProfiles = null;
-const MongoClient = require("mongodb").MongoClient;
-const uri =
-  "mongodb+srv://" +
-  process.env.DB_USER +
-  ":" +
-  process.env.DB_PASS +
-  "@datingapp-alfy7.mongodb.net/test?retryWrites=true&w=majority";
-const client = new MongoClient(uri, {
-  useNewUrlParser: true
-});
+// let collectionAnswers = null;
+// let db;
+// let collectionProfiles = null;
+// const MongoClient = require("mongodb").MongoClient;
+// const uri =
+//   "mongodb+srv://" +
+//   process.env.DB_USER +
+//   ":" +
+//   process.env.DB_PASS +
+//   "@datingapp-alfy7.mongodb.net/test?retryWrites=true&w=majority";
+// const client = new MongoClient(uri, {
+//   useNewUrlParser: true,
+// });
 
-//database connect
-client.connect(function(err, client) {
+// //database connect
+// client.connect(function (err, client) {
+//   if (err) {
+//     throw err;
+//   }
+//   collectionAnswers = client.db("datingapp").collection("userAnswers");
+//   collectionProfiles = client.db("datingapp").collection("profiles");
+// });
+
+let data = {
+  title: "datingapp",
+  page: "Registratie",
+  name: "Sjoerd",
+};
+
+//MongoDB database
+let database = null;
+
+const url = "mongodb://" + process.env.DB_HOST + ":" + process.env.DB_PORT;
+
+mongodb.MongoClient.connect(url, { useUnifiedTopology: true }, function (
+  err,
+  client
+) {
   if (err) {
-    throw err;
+    console.log(err);
   }
-  collectionAnswers = client.db("datingapp").collection("userAnswers");
-  collectionProfiles = client.db("datingapp").collection("profiles");
+
+  database = client.db(process.env.DB_NAME);
+  console.log("successfully connected to db");
 });
 
 //routes
@@ -42,14 +69,14 @@ app
   .set("views", "view")
   .use(
     express.urlencoded({
-      extended: false
+      extended: false,
     })
   )
   .use(
     session({
       secret: process.env.SESSION_SECRET,
       saveUninitialized: false,
-      resave: false
+      resave: false,
     })
   )
   .get("/finding", findMatch)
@@ -79,20 +106,17 @@ let images = [
   "images/mercedes.jpeg",
   "images/bentley.jpg",
   "images/ninjaBike.jpg",
-  "images/bike.jpg"
+  "images/bike.jpg",
 ];
 
-let data = {
-  title: "Datingapp"
-};
+// let data = {
+//   title: "Datingapp",
+// };
 
 //Register en Login functie
 
 function gebruikers(req, res, next) {
-  database
-    .collection("users")
-    .find()
-    .toArray(done);
+  database.collection("users").find().toArray(done);
 
   function done(err, data) {
     if (err) {
@@ -116,7 +140,7 @@ function add(req, res, next) {
     {
       naam: req.body.voornaam,
       email: req.body.emailadres,
-      wachtwoord: req.body.wachtwoord
+      wachtwoord: req.body.wachtwoord,
     },
     done
   );
@@ -147,6 +171,23 @@ function compareCredentials(req, res) {
   }
 }
 
+//Update password function
+function updatePassword(req, res) {
+  let users = req.session.emailadres;
+  console.log(users._id);
+
+  database.collection("users").updateOne(
+    { _id: mongo.ObjectId(users._id) },
+    {
+      $set: {
+        email: req.body.emailadres,
+        wachtwoord: req.body.wachtwoord,
+      },
+    }
+  );
+  res.redirect("/login");
+}
+
 //maak een functie van
 //vul data met foto's; op imageUrlX
 function fillImages() {
@@ -162,7 +203,7 @@ function findMatch(req, res, next) {
   //delete de huidige antwoorden van de ingelogde gebruiker
   collectionAnswers.deleteOne(
     {
-      user: req.session.user
+      user: req.session.user,
     },
     done
   );
@@ -173,7 +214,7 @@ function findMatch(req, res, next) {
     } else {
       req.session.user = "SamSloot";
       res.render("finding.ejs", {
-        data
+        data,
       });
     }
   }
@@ -186,7 +227,7 @@ function postQuestionAnswers(req, res, next) {
       user: req.session.user,
       answerOne: req.body.car1,
       answerTwo: req.body.car2,
-      answerThree: req.body.car3
+      answerThree: req.body.car3,
     },
     done
   );
@@ -206,7 +247,7 @@ function matchesPage(req, res, next) {
   console.log(req.session.user);
   collectionAnswers.findOne(
     {
-      user: req.session.user
+      user: req.session.user,
     },
     done
   );
@@ -238,8 +279,8 @@ function matchesPage(req, res, next) {
       collectionAnswers
         .find({
           user: {
-            $ne: req.session.user
-          }
+            $ne: req.session.user,
+          },
         })
         .toArray(doneTwo);
 
@@ -261,7 +302,7 @@ function matchesPage(req, res, next) {
           }
         }
         res.render("matches.ejs", {
-          data
+          data,
         });
       }
     }
@@ -272,12 +313,12 @@ function changeUserName(req, res, next) {
   //find de huidige gebruiker in de database en update zijn naam naar de nieuw ingevulde naam
   collectionAnswers.findOneAndUpdate(
     {
-      user: req.session.user
+      user: req.session.user,
     },
     {
       $set: {
-        user: req.body.newName
-      }
+        user: req.body.newName,
+      },
     },
     done
   );
@@ -292,7 +333,7 @@ function changeUserName(req, res, next) {
     } else {
       //render de pagina opnieuw om de nieuwe naam van de gebruiker te tonen
       res.render("matches.ejs", {
-        data
+        data,
       });
     }
   }
@@ -310,7 +351,7 @@ function matches(req, res, next) {
     } else {
       console.log(data);
       res.render("matches2.ejs", {
-        data: data
+        data: data,
       });
     }
   }
@@ -321,7 +362,7 @@ function profile(req, res, next) {
 
   collectionProfiles.findOne(
     {
-      _id: new mongo.ObjectID(id)
+      _id: new mongo.ObjectID(id),
     },
     done
   );
@@ -331,7 +372,7 @@ function profile(req, res, next) {
       next(err);
     } else {
       res.render("detail.ejs", {
-        data: data
+        data: data,
       });
     }
   }
@@ -347,7 +388,7 @@ function add(req, res, next) {
       naam: req.body.naam,
       foto: req.file ? req.file.filename : null,
       leeftijd: req.body.leeftijd,
-      bio: req.body.bio
+      bio: req.body.bio,
     },
     done
   );
@@ -366,7 +407,7 @@ function remove(req, res, next) {
 
   collectionProfiles.deleteOne(
     {
-      _id: new mongo.ObjectID(id)
+      _id: new mongo.ObjectID(id),
     },
     done
   );
@@ -377,7 +418,7 @@ function remove(req, res, next) {
     } else {
       // res.redirect('/start')
       res.json({
-        status: "ok"
+        status: "ok",
       });
     }
   }
