@@ -58,6 +58,12 @@ mongodb.MongoClient.connect(url, { useUnifiedTopology: true }, function (
     console.log(err);
   }
 
+  collectionUsers = client.db("datingapp").collection("users")
+  collectionAnswers = client.db("datingapp").collection("userAnswers");
+  collectionProfiles = client.db("datingapp").collection('profiles')
+})
+
+
   database = client.db(process.env.DB_NAME);
   console.log("successfully connected to db");
 });
@@ -98,6 +104,8 @@ app
   .get("/login", compareCredentials)
   .get("/loginDone", compareCredentials)
   .get("/loginFailed", compareCredentials);
+  .post('/', upload.single('foto'), createAccountInformation)
+  .get('/createUser', createUser)
 
 //informatie declaraties
 let images = [
@@ -198,6 +206,7 @@ function fillImages() {
 }
 fillImages();
 
+
 //find match pagina
 function findMatch(req, res, next) {
   //delete de huidige antwoorden van de ingelogde gebruiker
@@ -232,7 +241,17 @@ function postQuestionAnswers(req, res, next) {
     done
   );
 
-  function done(err, data) {
+
+function registerUser(req, res, next) {
+  collectionUsers.insertOne({
+      naam: req.body.username,
+      email: req.body.emailadres,
+      wachtwoord: req.body.wachtwoord
+    },
+    done
+  );
+
+  function done(err, useData) {
     if (err) {
       next(err);
     } else {
@@ -252,27 +271,105 @@ function matchesPage(req, res, next) {
     done
   );
 
-  function done(err, useData) {
-    data.user = useData;
+function createAccountInformation(req, res, next) {
+  if (!req.session.user) {
+    res.redirect('/login')
+  } else {
+    collectionProfiles.insertOne({
+      naam: req.body.naam,
+      foto: req.file ? req.file.filename : null,
+      leeftijd: req.body.leeftijd,
+      bio: req.body.bio
+    }, done)
 
-    if (err) {
-      next(err);
-    } else {
-      //verkrijg de url's van de user antwoorden
-      if (data.user.answerOne == 1) {
-        data.user.answerOneImg = images[0];
+    function done(err, data) {
+      if (err) {
+        next(err)
       } else {
-        data.user.answerOneImg = images[1];
+        res.redirect('/findMatch')
+        // res.redirect('/' + data.insertedId)
       }
-      if (data.user.answerTwo == 1) {
-        data.user.answerTwoImg = images[2];
+    }
+  }
+}
+
+//find match pagina
+function findMatch(req, res, next) {
+  if (!req.session.user) {
+    res.redirect('/login')
+  } else {
+    //delete de huidige antwoorden van de ingelogde gebruiker
+    collectionAnswers.deleteOne({
+      user: req.session.user
+    }, done)
+
+    function done(err, useData) {
+      if (err) {
+        next(err)
       } else {
-        data.user.answerTwoImg = images[3];
+        res.render('findMatch.ejs', {
+          data
+        })
       }
-      if (data.user.answerThree == 1) {
-        data.user.answerThreeImg = images[4];
+    }
+  }
+}
+
+//verzenden van image op antwoorden van vraag
+function postQuestionAnswers(req, res, next) {
+  if (!req.session.user) {
+    res.redirect('/login')
+  } else {
+    collectionAnswers.insertOne({
+      user: req.session.user,
+      answerOne: req.body.car1,
+      answerTwo: req.body.car2,
+      answerThree: req.body.car3
+    }, done);
+
+    function done(err, data) {
+      if (err) {
+        next(err)
       } else {
-        data.user.answerThreeImg = images[5];
+        res.redirect('/overview')
+      }
+    }
+  }
+}
+
+
+//pagina waarop je je matches kunt zien
+function matchesPage(req, res, next) {
+  if (!req.session.user) {
+    res.redirect('/login')
+  } else {
+    console.log(req.session.user);
+    collectionAnswers.findOne({
+      user: req.session.user
+    }, done)
+
+    function done(err, useData) {
+      data.user = useData;
+
+      if (err) {
+        next(err)
+      } else {
+        //verkrijg de url's van de user antwoorden
+        if (data.user.answerOne == 1) {
+          data.user.answerOneImg = images[0]
+        } else {
+          data.user.answerOneImg = images[1]
+        }
+        if (data.user.answerTwo == 1) {
+          data.user.answerTwoImg = images[2]
+        } else {
+          data.user.answerTwoImg = images[3]
+        }
+        if (data.user.answerThree == 1) {
+          data.user.answerThreeImg = images[4]
+        } else {
+          data.user.answerThreeImg = images[5]
+        }
       }
 
       //verzamel alle users die niet gelijk zijn aan de huidige gebruiker en stop ze in een array
@@ -310,31 +407,31 @@ function matchesPage(req, res, next) {
 }
 
 function changeUserName(req, res, next) {
-  //find de huidige gebruiker in de database en update zijn naam naar de nieuw ingevulde naam
-  collectionAnswers.findOneAndUpdate(
-    {
-      user: req.session.user,
-    },
-    {
+  if (!req.session.user) {
+    res.redirect('/login')
+  } else {
+    //find de huidige gebruiker in de database en update zijn naam naar de nieuw ingevulde naam
+    collectionAnswers.findOneAndUpdate({
+      user: req.session.user
+    }, {
       $set: {
-        user: req.body.newName,
-      },
-    },
-    done
-  );
+        user: req.body.newName
+      }
+    }, done)
 
-  function done(err, useData) {
-    //verander de session van de gebruiker samen met het gerenderde data object
-    req.session.user = req.body.newName;
-    data.user.user = req.session.user;
+    function done(err, useData) {
+      //verander de session van de gebruiker samen met het gerenderde data object
+      req.session.user = req.body.newName;
+      data.user.user = req.session.user;
 
-    if (err) {
-      next(err);
-    } else {
-      //render de pagina opnieuw om de nieuwe naam van de gebruiker te tonen
-      res.render("matches.ejs", {
-        data,
-      });
+      if (err) {
+        next(err)
+      } else {
+        //render de pagina opnieuw om de nieuwe naam van de gebruiker te tonen
+        res.render('matches.ejs', {
+          data
+        });
+      }
     }
   }
 }
@@ -343,16 +440,20 @@ function changeUserName(req, res, next) {
 //FEATURE MAX
 //******************* */
 function matches(req, res, next) {
-  collectionProfiles.find().toArray(done);
+  if (!req.session.user) {
+    res.redirect('/login')
+  } else {
+    collectionProfiles.find().toArray(done)
 
-  function done(err, data) {
-    if (err) {
-      next(err);
-    } else {
-      console.log(data);
-      res.render("matches2.ejs", {
-        data: data,
-      });
+    function done(err, data) {
+      if (err) {
+        next(err)
+      } else {
+        console.log(data)
+        res.render('matches2.ejs', {
+          data: data
+        })
+      }
     }
   }
 }
@@ -403,23 +504,25 @@ function add(req, res, next) {
 }
 
 function remove(req, res, next) {
-  var id = req.params.id;
+  if (!req.session.user) {
+    res.redirect('/login')
+  } else {
+    var id = req.params.id
 
-  collectionProfiles.deleteOne(
-    {
-      _id: new mongo.ObjectID(id),
-    },
-    done
-  );
+    collectionProfiles.deleteOne({
+      _id: new mongo.ObjectID(id)
+    }, done)
 
-  function done(err) {
-    if (err) {
-      next(err);
-    } else {
-      // res.redirect('/start')
-      res.json({
-        status: "ok",
-      });
+    function done(err) {
+      if (err) {
+        next(err)
+      } else {
+
+        res.json({
+          status: 'ok'
+        })
+
+      }
     }
   }
 }

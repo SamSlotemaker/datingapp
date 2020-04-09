@@ -6,6 +6,8 @@
 
 <body>
   <%- include ('header.ejs') %>
+<a href="/matches">Back to matches</a>
+
   <h1>
     <%= data.naam %>
   </h1>
@@ -25,7 +27,6 @@
       id=js-remove
       data-id="<%= data._id %>"
     >Unmatch</button>
-  <p><a href="/start">Back to matches</a></p>
   <script src=/index.js></script>
 </body>
 
