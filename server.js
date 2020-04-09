@@ -64,24 +64,20 @@ app
       resave: false,
     })
   )
-  .get("/registratie", registratieForm)
+  .get("/register", registerForm)
   .get("/login", loginForm)
   .get("/add", createUserForm)
   .get("/findMatch", findMatch)
   .get("/overview", matchesPage)
   .get("/matches", matches)
-  // .get("/", gebruikers)
-  // .get("/loginDone", compareCredentials)
-  // .get("/loginFailed", compareCredentials)
   .post("/registerUser", registerUser)
   .post("/login", compareCredentials)
   .post("/postQuestionAnswers", postQuestionAnswers)
   .post("/changeName", changeUserName)
   .post("/createProfile", upload.single("foto"), createAccountInformation)
   .get("/:id", profile)
-  .delete("/:id", remove)
+  .delete("/:id", deleteUserProfile)
   .use(notFound)
-// .get('/createUser', createUser)
 
 //informatie declaraties
 let images = [
@@ -93,12 +89,8 @@ let images = [
   "images/bike.jpg",
 ];
 
-// let data = {
-//   title: "Datingapp",
-// };
 
 //Register en Login functie
-
 function gebruikers(req, res, next) {
   database.collection("users").find().toArray(done);
 
@@ -119,8 +111,8 @@ function loginForm(req, res) {
   });
 }
 
-function registratieForm(req, res) {
-  res.render("registratie.ejs", {
+function registerForm(req, res) {
+  res.render("register.ejs", {
     data
   });
 }
@@ -183,7 +175,6 @@ function updatePassword(req, res) {
   res.redirect("/login");
 }
 
-//maak een functie van
 //vul data met foto's; op imageUrlX
 function fillImages() {
   for (let i = 0; i < images.length; i++) {
@@ -212,41 +203,7 @@ function findMatch(req, res, next) {
       });
     }
   }
-
-
 }
-
-
-//verzenden van image op antwoorden van vraag
-function postQuestionAnswers(req, res, next) {
-  collectionAnswers.insertOne({
-      user: req.session.user,
-      answerOne: req.body.car1,
-      answerTwo: req.body.car2,
-      answerThree: req.body.car3,
-    },
-    done
-  );
-}
-
-
-// function registerUser(req, res, next) {
-//   collectionUsers.insertOne({
-//       naam: req.body.username,
-//       email: req.body.emailadres,
-//       wachtwoord: req.body.wachtwoord
-//     },
-//     done
-//   );
-
-//   function done(err, useData) {
-//     if (err) {
-//       next(err);
-//     } else {
-//       res.redirect("/matches");
-//     }
-//   }
-// }
 
 function createAccountInformation(req, res, next) {
   if (!req.session.user) {
@@ -264,7 +221,6 @@ function createAccountInformation(req, res, next) {
         next(err)
       } else {
         res.redirect('/login')
-        // res.redirect('/' + data.insertedId)
       }
     }
   }
@@ -427,7 +383,7 @@ function matches(req, res, next) {
         next(err)
       } else {
         console.log(data)
-        res.render('matches2.ejs', {
+        res.render('matches.ejs', {
           data: data
         })
       }
@@ -475,14 +431,13 @@ function createAccountInformation(req, res, next) {
     if (err) {
       next(err);
     } else {
-      // res.redirect("/" + data.insertedId);
       res.redirect("/findMatch")
     }
   }
 }
 
 
-function remove(req, res, next) {
+function deleteUserProfile(req, res, next) {
   if (!req.session.user) {
     res.redirect('/login')
   } else {
