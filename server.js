@@ -4,7 +4,7 @@ const port = 3000;
 require("dotenv").config();
 const session = require("express-session");
 const ejs = require("ejs");
-const mongodb = require("mongodb");
+const mongo = require("mongodb");
 const multer = require("multer");
 const ejsLint = require("ejs-lint");
 const bodyparser = require("body-parser");
@@ -15,58 +15,37 @@ const upload = multer({
   dest: "public/upload/",
 });
 
-//database configuratie
-// let collectionAnswers = null;
-// let db;
-// let collectionProfiles = null;
-// const MongoClient = require("mongodb").MongoClient;
-// const uri =
-//   "mongodb+srv://" +
-//   process.env.DB_USER +
-//   ":" +
-//   process.env.DB_PASS +
-//   "@datingapp-alfy7.mongodb.net/test?retryWrites=true&w=majority";
-// const client = new MongoClient(uri, {
-//   useNewUrlParser: true,
-// });
+// database configuratie
 
-// //database connect
-// client.connect(function (err, client) {
-//   if (err) {
-//     throw err;
-//   }
-//   collectionAnswers = client.db("datingapp").collection("userAnswers");
-//   collectionProfiles = client.db("datingapp").collection("profiles");
-// });
+let db;
+let collectionProfiles;
+let collectionUsers;
+let collectionAnswers = null;
+const MongoClient = require("mongodb").MongoClient;
+const uri =
+  "mongodb+srv://" +
+  process.env.DB_USER +
+  ":" +
+  process.env.DB_PASS +
+  "@datingapp-alfy7.mongodb.net/test?retryWrites=true&w=majority";
+const client = new MongoClient(uri, {
+  useNewUrlParser: true,
+});
+
+//database connect
+client.connect(function (err, client) {
+  if (err) {
+    throw err;
+  }
+  collectionAnswers = client.db("datingapp").collection("userAnswers");
+  collectionProfiles = client.db("datingapp").collection("profiles");
+  collectionUsers = client.db("datingapp").collection("users")
+});
 
 let data = {
-  title: "datingapp",
-  page: "Registratie",
-  name: "Sjoerd",
+  title: "datingapp"
 };
 
-//MongoDB database
-let database = null;
-
-const url = "mongodb://" + process.env.DB_HOST + ":" + process.env.DB_PORT;
-
-mongodb.MongoClient.connect(url, { useUnifiedTopology: true }, function (
-  err,
-  client
-) {
-  if (err) {
-    console.log(err);
-  }
-
-  collectionUsers = client.db("datingapp").collection("users")
-  collectionAnswers = client.db("datingapp").collection("userAnswers");
-  collectionProfiles = client.db("datingapp").collection('profiles')
-})
-
-
-  database = client.db(process.env.DB_NAME);
-  console.log("successfully connected to db");
-});
 
 //routes
 app
@@ -85,27 +64,24 @@ app
       resave: false,
     })
   )
-  .get("/finding", findMatch)
+  .get("/registratie", registratieForm)
+  .get("/login", loginForm)
+  .get("/add", createUserForm)
+  .get("/findMatch", findMatch)
+  .get("/overview", matchesPage)
+  .get("/matches", matches)
+  // .get("/", gebruikers)
+  // .get("/loginDone", compareCredentials)
+  // .get("/loginFailed", compareCredentials)
+  .post("/registerUser", registerUser)
+  .post("/login", compareCredentials)
   .post("/postQuestionAnswers", postQuestionAnswers)
-  .get("/matches", matchesPage)
   .post("/changeName", changeUserName)
-  .get("/start", matches)
-  .post("/", upload.single("foto"), add)
-  .get("/add", form)
+  .post("/createProfile", upload.single("foto"), createAccountInformation)
   .get("/:id", profile)
   .delete("/:id", remove)
-  .use(notFound);
-
-app
-  .post("/registerUser", add)
-  .get("/", gebruikers)
-  .get("/registratie", Registratieform)
-  .get("/login", loginForm)
-  .get("/login", compareCredentials)
-  .get("/loginDone", compareCredentials)
-  .get("/loginFailed", compareCredentials);
-  .post('/', upload.single('foto'), createAccountInformation)
-  .get('/createUser', createUser)
+  .use(notFound)
+// .get('/createUser', createUser)
 
 //informatie declaraties
 let images = [
@@ -130,50 +106,62 @@ function gebruikers(req, res, next) {
     if (err) {
       next(err);
     } else {
-      res.render("login.ejs", { data: data });
+      res.render("login.ejs", {
+        data: data
+      });
     }
   }
 }
 
 function loginForm(req, res) {
-  res.render("login.ejs", { data });
+  res.render("login.ejs", {
+    data
+  });
 }
 
-function Registratieform(req, res) {
-  res.render("registratie.ejs", { data });
+function registratieForm(req, res) {
+  res.render("registratie.ejs", {
+    data
+  });
 }
 
-function add(req, res, next) {
-  database.collection("users").insertOne(
-    {
-      naam: req.body.voornaam,
+function registerUser(req, res, next) {
+  collectionUsers.insertOne({
+      username: req.body.username,
       email: req.body.emailadres,
       wachtwoord: req.body.wachtwoord,
     },
     done
   );
+
   function done(err, data) {
     if (err) {
       next(err);
     } else {
-      res.redirect("/login");
+      res.redirect("/add");
     }
   }
 }
 
 function compareCredentials(req, res) {
-  database.collection("users").findOne({ email: req.body.emailadres }, done);
+  collectionUsers.findOne({
+    email: req.body.emailadres
+  }, done);
+
 
   function done(err, data) {
+    // console.log(data);
     if (err) {
       next(err);
     } else {
       if (data.wachtwoord === req.body.wachtwoord) {
         console.log("succesvol ingelogd :)");
-        res.redirect("loginDone.ejs");
+        req.session.user = data.username;
+        res.redirect("/findMatch");
+        // res.send("hoi");
       } else {
         console.log("login mislukt :(");
-        res.render("loginFailed.ejs");
+        res.redirect("/login");
       }
     }
   }
@@ -184,15 +172,14 @@ function updatePassword(req, res) {
   let users = req.session.emailadres;
   console.log(users._id);
 
-  database.collection("users").updateOne(
-    { _id: mongo.ObjectId(users._id) },
-    {
-      $set: {
-        email: req.body.emailadres,
-        wachtwoord: req.body.wachtwoord,
-      },
-    }
-  );
+  database.collection("users").updateOne({
+    _id: mongo.ObjectId(users._id)
+  }, {
+    $set: {
+      email: req.body.emailadres,
+      wachtwoord: req.body.wachtwoord,
+    },
+  });
   res.redirect("/login");
 }
 
@@ -209,9 +196,8 @@ fillImages();
 
 //find match pagina
 function findMatch(req, res, next) {
-  //delete de huidige antwoorden van de ingelogde gebruiker
-  collectionAnswers.deleteOne(
-    {
+  // delete de huidige antwoorden van de ingelogde gebruiker
+  collectionAnswers.deleteOne({
       user: req.session.user,
     },
     done
@@ -221,18 +207,19 @@ function findMatch(req, res, next) {
     if (err) {
       next(err);
     } else {
-      req.session.user = "SamSloot";
       res.render("finding.ejs", {
         data,
       });
     }
   }
+
+
 }
+
 
 //verzenden van image op antwoorden van vraag
 function postQuestionAnswers(req, res, next) {
-  collectionAnswers.insertOne(
-    {
+  collectionAnswers.insertOne({
       user: req.session.user,
       answerOne: req.body.car1,
       answerTwo: req.body.car2,
@@ -240,36 +227,26 @@ function postQuestionAnswers(req, res, next) {
     },
     done
   );
-
-
-function registerUser(req, res, next) {
-  collectionUsers.insertOne({
-      naam: req.body.username,
-      email: req.body.emailadres,
-      wachtwoord: req.body.wachtwoord
-    },
-    done
-  );
-
-  function done(err, useData) {
-    if (err) {
-      next(err);
-    } else {
-      res.redirect("/matches");
-    }
-  }
 }
 
-//pagina waarop je je matches kunt zien
-function matchesPage(req, res, next) {
-  req.session.user = "SamSloot";
-  console.log(req.session.user);
-  collectionAnswers.findOne(
-    {
-      user: req.session.user,
-    },
-    done
-  );
+
+// function registerUser(req, res, next) {
+//   collectionUsers.insertOne({
+//       naam: req.body.username,
+//       email: req.body.emailadres,
+//       wachtwoord: req.body.wachtwoord
+//     },
+//     done
+//   );
+
+//   function done(err, useData) {
+//     if (err) {
+//       next(err);
+//     } else {
+//       res.redirect("/matches");
+//     }
+//   }
+// }
 
 function createAccountInformation(req, res, next) {
   if (!req.session.user) {
@@ -286,7 +263,7 @@ function createAccountInformation(req, res, next) {
       if (err) {
         next(err)
       } else {
-        res.redirect('/findMatch')
+        res.redirect('/login')
         // res.redirect('/' + data.insertedId)
       }
     }
@@ -398,7 +375,7 @@ function matchesPage(req, res, next) {
             }
           }
         }
-        res.render("matches.ejs", {
+        res.render("overview.ejs", {
           data,
         });
       }
@@ -428,7 +405,7 @@ function changeUserName(req, res, next) {
         next(err)
       } else {
         //render de pagina opnieuw om de nieuwe naam van de gebruiker te tonen
-        res.render('matches.ejs', {
+        res.render('overview.ejs', {
           data
         });
       }
@@ -461,8 +438,7 @@ function matches(req, res, next) {
 function profile(req, res, next) {
   let id = req.params.id;
 
-  collectionProfiles.findOne(
-    {
+  collectionProfiles.findOne({
       _id: new mongo.ObjectID(id),
     },
     done
@@ -479,13 +455,14 @@ function profile(req, res, next) {
   }
 }
 
-function form(req, res) {
-  res.render("add.ejs");
+function createUserForm(req, res) {
+  res.render("createUser.ejs", {
+    data
+  });
 }
 
-function add(req, res, next) {
-  collectionProfiles.insertOne(
-    {
+function createAccountInformation(req, res, next) {
+  collectionProfiles.insertOne({
       naam: req.body.naam,
       foto: req.file ? req.file.filename : null,
       leeftijd: req.body.leeftijd,
@@ -498,10 +475,12 @@ function add(req, res, next) {
     if (err) {
       next(err);
     } else {
-      res.redirect("/" + data.insertedId);
+      // res.redirect("/" + data.insertedId);
+      res.redirect("/findMatch")
     }
   }
 }
+
 
 function remove(req, res, next) {
   if (!req.session.user) {
