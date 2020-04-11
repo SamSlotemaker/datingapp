@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 require("dotenv").config();
 const session = require("express-session");
 const ejs = require("ejs");
@@ -70,7 +70,7 @@ app
   .get("/findMatch", findMatch)
   .get("/overview", matchesPage)
   .get("/matches", matches)
-  .post("/registerUser", registerUser)
+  .post("/registerUser", registerUser )
   .post("/login", compareCredentials)
   .post("/postQuestionAnswers", postQuestionAnswers)
   .post("/changeName", changeUserName)
