@@ -411,10 +411,15 @@ function profile(req, res, next) {
   }
 }
 
+
 function createUserForm(req, res) {
   res.render("createUser.ejs", {
     data
   });
+}
+
+function form(req, res) {
+  res.render('add.ejs', {data})
 }
 
 function createAccountInformation(req, res, next) {

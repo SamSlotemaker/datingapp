@@ -248,7 +248,10 @@ nav img {
 }
 
 
+<<<<<<< HEAD
 /* PROFIEL TOEVOEGEN */
+=======
+>>>>>>> 3de064d1a5eebbe83f8509696005e22cb5a4a19a
 .add-profile {
   color: #fb90b7;
 }
@@ -262,6 +265,7 @@ nav img {
   margin-left: 1em;
 }
 
+<<<<<<< HEAD
 /* PROFILE PAGINA */
 .profile:first-of-type {
   margin-top: 3em;
@@ -275,6 +279,8 @@ nav img {
 .profile p {
   text-align: center;
 }
+=======
+>>>>>>> 3de064d1a5eebbe83f8509696005e22cb5a4a19a
 
 
 /* MIDDLE SCREENS */
