@@ -70,7 +70,7 @@ app
   .get("/findMatch", findMatch)
   .get("/overview", matchesPage)
   .get("/matches", matches)
-  .post("/registerUser", registerUsers)
+  .post("/registerUser", registerUser)
   .post("/login", compareCredentials)
   .post("/postQuestionAnswers", postQuestionAnswers)
   .post("/changeName", changeUserName)
