@@ -29,7 +29,7 @@ const uri =
   process.env.DB_PASS +
   "@datingapp-alfy7.mongodb.net/test?retryWrites=true&w=majority";
 const client = new MongoClient(uri, {
-  useNewUrlParser: true,
+  useNewUrlParser: true, useUnifiedTopology: true
 });
 
 //database connect
