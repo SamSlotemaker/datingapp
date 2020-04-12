@@ -13,7 +13,7 @@
         <ul></ul>
         <ul></ul>
 
-        <h2> Welkom, <%= data.user.user %>.</h2>
+        <h2> Welkom, <%= data.user.username %>.</h2>
         <p>Je hebt geantwoord met:</p>
         <ul class="answerList">
             <li><img src=<%= data.user.answerOneImg %> alt="antwoord op vraag 1"> </li>
@@ -27,7 +27,7 @@
             <ul>
                 <% for (var index = 0; index < data.matches.length; index++) { %>
                 <li>
-                    <%= data.matches[index].user %>
+                    <%= data.matches[index].username %>
                 </li>
 
                 <% } %>
