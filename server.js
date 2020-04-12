@@ -68,7 +68,7 @@ app
   .get("/login", loginForm)
   .get("/add", createUserForm)
   .get("/findMatch", findMatch)
-  .get("/overview", overview)
+  .get("/overview", matchesPage)
   .get("/matches", matches)
   .post("/registerUser", registerUser)
   .post("/login", compareCredentials)
@@ -130,7 +130,6 @@ function registerUser(req, res, next) {
     if (err) {
       next(err);
     } else {
-      req.session.user = req.body.username;
       res.redirect("/add");
     }
   }
@@ -211,7 +210,6 @@ function createAccountInformation(req, res, next) {
     res.redirect('/login')
   } else {
     collectionProfiles.insertOne({
-      username: req.session.user,
       naam: req.body.naam,
       foto: req.file ? req.file.filename : null,
       leeftijd: req.body.leeftijd,
@@ -222,7 +220,7 @@ function createAccountInformation(req, res, next) {
       if (err) {
         next(err)
       } else {
-        res.redirect('/findMatch')
+        res.redirect('/login')
       }
     }
   }
@@ -233,11 +231,21 @@ function findMatch(req, res, next) {
   if (!req.session.user) {
     res.redirect('/login')
   } else {
-    res.render('findMatch.ejs', {
-      data
-    })
-  }
+    //delete de huidige antwoorden van de ingelogde gebruiker
+    collectionAnswers.deleteOne({
+      user: req.session.user
+    }, done)
 
+    function done(err, useData) {
+      if (err) {
+        next(err)
+      } else {
+        res.render('findMatch.ejs', {
+          data
+        })
+      }
+    }
+  }
 }
 
 //verzenden van image op antwoorden van vraag
@@ -245,14 +253,11 @@ function postQuestionAnswers(req, res, next) {
   if (!req.session.user) {
     res.redirect('/login')
   } else {
-    collectionProfiles.findOneAndUpdate({
-      username: req.session.user
-    }, {
-      $set: {
-        answerOne: req.body.car1,
-        answerTwo: req.body.car2,
-        answerThree: req.body.car3
-      }
+    collectionAnswers.insertOne({
+      user: req.session.user,
+      answerOne: req.body.car1,
+      answerTwo: req.body.car2,
+      answerThree: req.body.car3
     }, done);
 
     function done(err, data) {
@@ -267,18 +272,18 @@ function postQuestionAnswers(req, res, next) {
 
 
 //pagina waarop je je matches kunt zien
-function overview(req, res, next) {
+function matchesPage(req, res, next) {
   if (!req.session.user) {
     res.redirect('/login')
   } else {
-    collectionProfiles.findOne({
-      username: req.session.user
+    console.log(req.session.user);
+    collectionAnswers.findOne({
+      user: req.session.user
     }, done)
 
     function done(err, useData) {
       data.user = useData;
 
-      console.log(useData)
       if (err) {
         next(err)
       } else {
@@ -301,9 +306,9 @@ function overview(req, res, next) {
       }
 
       //verzamel alle users die niet gelijk zijn aan de huidige gebruiker en stop ze in een array
-      collectionProfiles
+      collectionAnswers
         .find({
-          username: {
+          user: {
             $ne: req.session.user,
           },
         })
@@ -313,10 +318,8 @@ function overview(req, res, next) {
         if (err) {
           throw err;
         } else {
-
           //push alle gebruikers met de zelfde antwoorden als jij in een array
           data.matches = [];
-          console.log(data.user.answerOne)
           for (let i = 0; i < useData.length; i++) {
             if (
               data.user.answerOne == useData[i].answerOne &&
@@ -324,13 +327,9 @@ function overview(req, res, next) {
               data.user.answerThree == useData[i].answerThree
             ) {
               data.matches.push(useData[i]);
-              console.log(`${useData[i].username} is toegevoegd aan matches`);
+              console.log(`${useData[i].user} is toegevoegd aan matches`);
             }
-            
-            console.log(data.matches);
           }
-
-
         }
         res.render("overview.ejs", {
           data,
@@ -346,10 +345,10 @@ function changeUserName(req, res, next) {
   } else {
     //find de huidige gebruiker in de database en update zijn naam naar de nieuw ingevulde naam
     collectionAnswers.findOneAndUpdate({
-      username: req.session.user
+      user: req.session.user
     }, {
       $set: {
-        username: req.body.newName
+        user: req.body.newName
       }
     }, done)
 
@@ -416,6 +415,25 @@ function createUserForm(req, res) {
   res.render("createUser.ejs", {
     data
   });
+}
+
+function createAccountInformation(req, res, next) {
+  collectionProfiles.insertOne({
+      naam: req.body.naam,
+      foto: req.file ? req.file.filename : null,
+      leeftijd: req.body.leeftijd,
+      bio: req.body.bio,
+    },
+    done
+  );
+
+  function done(err, data) {
+    if (err) {
+      next(err);
+    } else {
+      res.redirect("/findMatch")
+    }
+  }
 }
 
 
