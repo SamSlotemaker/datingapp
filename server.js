@@ -68,7 +68,7 @@ app
   .get("/login", loginForm)
   .get("/add", createUserForm)
   .get("/findMatch", findMatch)
-  .get("/overview", matchesPage)
+  .get("/overview", overview)
   .get("/matches", matches)
   .post("/registerUser", registerUser)
   .post("/login", compareCredentials)
@@ -233,18 +233,6 @@ function findMatch(req, res, next) {
   if (!req.session.user) {
     res.redirect('/login')
   } else {
-    // //delete de huidige antwoorden van de ingelogde gebruiker
-    // collectionAnswers.deleteOne({
-    //   user: req.session.user
-    // }, done)
-
-    // function done(err, useData) {
-    //   if (err) {
-    //     next(err)
-    //   } else {
-    //     
-    //   }
-    // }
     res.render('findMatch.ejs', {
       data
     })
@@ -279,11 +267,10 @@ function postQuestionAnswers(req, res, next) {
 
 
 //pagina waarop je je matches kunt zien
-function matchesPage(req, res, next) {
+function overview(req, res, next) {
   if (!req.session.user) {
     res.redirect('/login')
   } else {
-    console.log(req.session.user);
     collectionProfiles.findOne({
       username: req.session.user
     }, done)
@@ -326,7 +313,7 @@ function matchesPage(req, res, next) {
         if (err) {
           throw err;
         } else {
-          // console.log(useData);
+
           //push alle gebruikers met de zelfde antwoorden als jij in een array
           data.matches = [];
           console.log(data.user.answerOne)
@@ -339,6 +326,8 @@ function matchesPage(req, res, next) {
               data.matches.push(useData[i]);
               console.log(`${useData[i].username} is toegevoegd aan matches`);
             }
+            
+            console.log(data.matches);
           }
 
 
