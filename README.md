@@ -45,8 +45,18 @@ npm start
 
 De app draait op localhost:3000
 
+## Topics
+We hebben gekozen voor de volgende topics:
+
+
+### Sam
+* Het deployen van de applicatie 
+* Opsplitsen van de routes met modules
+
+Het onderzoek hiervan staat in de wiki
+
 ## Documentatie
-De documentatie van mijn onderzoek en het proces kunt u vinden op mijn [wiki](https://github.com/SamSlotemaker/blok_tech/wiki)
+De volledige documentatie van mijn onderzoek en het proces kunt u vinden op mijn [wiki](https://github.com/SamSlotemaker/blok_tech/wiki)
 
 ## Auteurs
 * **Sam Slotemaker** 
