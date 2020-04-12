@@ -8,10 +8,10 @@
 
 
   <h1>Matches</h1>
-  <% for (var index = 0; index < data.length; index++) { %>
+  <% for (var index = 0; index < data.matches.length; index++) { %>
   <article class="profile">
-    <h2><a href="/<%= data[index]._id %>"><%= data[index].naam %></a></h2>
-    <p><%= data[index].leeftijd %></p>
+    <h2><a href="/<%= data.matches[index]._id %>"><%= data.matches[index].naam %></a></h2>
+    <p><%= data.matches[index].leeftijd %></p>
   </article>
   <% } %>
 </body>

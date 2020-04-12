@@ -358,18 +358,20 @@ function matches(req, res, next) {
   if (!req.session.user) {
     res.redirect('/login')
   } else {
-    collectionProfiles.find().toArray(done)
+    // collectionProfiles.find().toArray(done)
 
-    function done(err, data) {
-      if (err) {
-        next(err)
-      } else {
-        console.log(data)
-        res.render('matches.ejs', {
-          data: data
-        })
-      }
-    }
+    // function done(err, data) {
+    //   if (err) {
+    //     next(err)
+    //   } else {
+       
+    //   }
+    // }
+  
+    console.log(data)
+    res.render('matches.ejs', {
+      data: data
+    })
   }
 }
 
