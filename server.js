@@ -29,7 +29,8 @@ const uri =
   process.env.DB_PASS +
   "@datingapp-alfy7.mongodb.net/test?retryWrites=true&w=majority";
 const client = new MongoClient(uri, {
-  useNewUrlParser: true, useUnifiedTopology: true
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
 });
 
 //database connect
@@ -39,13 +40,12 @@ client.connect(function (err, client) {
   }
   collectionAnswers = client.db("datingapp").collection("userAnswers");
   collectionProfiles = client.db("datingapp").collection("profiles");
-  collectionUsers = client.db("datingapp").collection("users")
+  collectionUsers = client.db("datingapp").collection("users");
 });
 
 let data = {
-  title: "datingapp"
+  title: "datingapp",
 };
-
 
 //routes
 app
@@ -70,14 +70,14 @@ app
   .get("/findMatch", findMatch)
   .get("/overview", overview)
   .get("/matches", matches)
-  .post("/registerUser", registerUser )
+  .post("/registerUser", registerUser)
   .post("/login", compareCredentials)
   .post("/postQuestionAnswers", postQuestionAnswers)
   .post("/changeName", changeUserName)
   .post("/createProfile", upload.single("foto"), createAccountInformation)
   .get("/:id", profile)
   .delete("/:id", deleteUserProfile)
-  .use(notFound)
+  .use(notFound);
 
 //informatie declaraties
 let images = [
@@ -89,7 +89,6 @@ let images = [
   "images/bike.jpg",
 ];
 
-
 //Register en Login functie
 function gebruikers(req, res, next) {
   database.collection("users").find().toArray(done);
@@ -99,7 +98,7 @@ function gebruikers(req, res, next) {
       next(err);
     } else {
       res.render("login.ejs", {
-        data: data
+        data: data,
       });
     }
   }
@@ -107,40 +106,38 @@ function gebruikers(req, res, next) {
 
 function loginForm(req, res) {
   res.render("login.ejs", {
-    data
+    data,
   });
 }
 
 function registerForm(req, res) {
   res.render("register.ejs", {
-    data
+    data,
   });
 }
 
-function registerUser(req, res, next) {
-  collectionUsers.insertOne({
+async function registerUser(req, res, next) {
+  try {
+    const hashedPassword = await bcrypt.hash(req.body.wachtwoord, 10);
+    collectionUsers.insertOne({
       username: req.body.username,
       email: req.body.emailadres,
-      wachtwoord: req.body.wachtwoord,
-    },
-    done
-  );
-
-  function done(err, data) {
-    if (err) {
-      next(err);
-    } else {
-      req.session.user = req.body.username;
-      res.redirect("/add");
-    }
+      wachtwoord: hashedPassword,
+    });
+    res.redirect("/add");
+  } catch {
+    res.redirect("/register");
   }
+  console.log(collectionUsers);
 }
 
 function compareCredentials(req, res) {
-  collectionUsers.findOne({
-    email: req.body.emailadres
-  }, done);
-
+  collectionUsers.findOne(
+    {
+      email: req.body.emailadres,
+    },
+    done
+  );
 
   function done(err, data) {
     // console.log(data);
@@ -165,14 +162,17 @@ function updatePassword(req, res) {
   let users = req.session.emailadres;
   console.log(users._id);
 
-  database.collection("users").updateOne({
-    _id: mongo.ObjectId(users._id)
-  }, {
-    $set: {
-      email: req.body.emailadres,
-      wachtwoord: req.body.wachtwoord,
+  database.collection("users").updateOne(
+    {
+      _id: mongo.ObjectId(users._id),
     },
-  });
+    {
+      $set: {
+        email: req.body.emailadres,
+        wachtwoord: req.body.wachtwoord,
+      },
+    }
+  );
   res.redirect("/login");
 }
 
@@ -185,25 +185,27 @@ function fillImages() {
 }
 fillImages();
 
-
 //pagina waarop een profiel gemaakt wordt
 function createAccountInformation(req, res, next) {
   if (!req.session.user) {
-    res.redirect('/login')
+    res.redirect("/login");
   } else {
-    collectionProfiles.insertOne({
-      username: req.session.user,
-      naam: req.body.naam,
-      foto: req.file ? req.file.filename : null,
-      leeftijd: req.body.leeftijd,
-      bio: req.body.bio
-    }, done)
+    collectionProfiles.insertOne(
+      {
+        username: req.session.user,
+        naam: req.body.naam,
+        foto: req.file ? req.file.filename : null,
+        leeftijd: req.body.leeftijd,
+        bio: req.body.bio,
+      },
+      done
+    );
 
     function done(err, data) {
       if (err) {
-        next(err)
+        next(err);
       } else {
-        res.redirect('/findMatch')
+        res.redirect("/findMatch");
       }
     }
   }
@@ -212,72 +214,77 @@ function createAccountInformation(req, res, next) {
 //find match pagina
 function findMatch(req, res, next) {
   if (!req.session.user) {
-    res.redirect('/login')
+    res.redirect("/login");
   } else {
-    res.render('findMatch.ejs', {
-      data
-    })
+    res.render("findMatch.ejs", {
+      data,
+    });
   }
-
 }
 
 //verzenden van image op antwoorden van vraag
 function postQuestionAnswers(req, res, next) {
   if (!req.session.user) {
-    res.redirect('/login')
+    res.redirect("/login");
   } else {
-    collectionProfiles.findOneAndUpdate({
-      username: req.session.user
-    }, {
-      $set: {
-        answerOne: req.body.car1,
-        answerTwo: req.body.car2,
-        answerThree: req.body.car3
-      }
-    }, done);
+    collectionProfiles.findOneAndUpdate(
+      {
+        username: req.session.user,
+      },
+      {
+        $set: {
+          answerOne: req.body.car1,
+          answerTwo: req.body.car2,
+          answerThree: req.body.car3,
+        },
+      },
+      done
+    );
 
     function done(err, data) {
       if (err) {
-        next(err)
+        next(err);
       } else {
-        res.redirect('/overview')
+        res.redirect("/overview");
       }
     }
   }
 }
 
-
 //pagina waarop je je matches kunt zien
 function overview(req, res, next) {
   if (!req.session.user) {
-    res.redirect('/login')
+    res.redirect("/login");
   } else {
-    collectionProfiles.findOne({
-      username: req.session.user
-    }, done)
+    collectionProfiles.findOne(
+      {
+        username: req.session.user,
+      },
+      done
+    );
 
     function done(err, useData) {
       data.user = useData;
 
-      console.log(useData)
+      console.log(useData);
       if (err) {
-        next(err)
+        next(err);
       } else {
         //verkrijg de url's van de user antwoorden
         if (data.user.answerOne == 1) {
-          data.user.answerOneImg = images[0]
+          data.user.answerOneImg = images[0];
         } else {
-          data.user.answerOneImg = images[1]
+          data.user.answerOneImg = images[1];
         }
         if (data.user.answerTwo == 1) {
-          data.user.answerTwoImg = images[2]
+          data.user.answerTwoImg = images[2];
         } else {
-          data.user.answerTwoImg = images[3]
+          data.user.answerTwoImg = images[3];
         }
         if (data.user.answerThree == 1) {
-          data.user.answerThreeImg = images[4]
+          data.user.answerThreeImg = images[4];
         } else {
-          data.user.answerThreeImg = images[5]
+          data.user.answerThreeImg = images[5];
         }
       }
 
@@ -294,10 +301,9 @@ function overview(req, res, next) {
         if (err) {
           throw err;
         } else {
-
           //push alle gebruikers met de zelfde antwoorden als jij in een array
           data.matches = [];
-          console.log(data.user.answerOne)
+          console.log(data.user.answerOne);
           for (let i = 0; i < useData.length; i++) {
             if (
               data.user.answerOne == useData[i].answerOne &&
@@ -307,11 +313,9 @@ function overview(req, res, next) {
               data.matches.push(useData[i]);
               console.log(`${useData[i].username} is toegevoegd aan matches`);
             }
-            
+
             console.log(data.matches);
           }
-
-
         }
         res.render("overview.ejs", {
           data,
@@ -323,16 +327,20 @@ function overview(req, res, next) {
 
 function changeUserName(req, res, next) {
   if (!req.session.user) {
-    res.redirect('/login')
+    res.redirect("/login");
   } else {
     //find de huidige gebruiker in de database en update zijn naam naar de nieuw ingevulde naam
-    collectionAnswers.findOneAndUpdate({
-      username: req.session.user
-    }, {
-      $set: {
-        username: req.body.newName
-      }
-    }, done)
+    collectionAnswers.findOneAndUpdate(
+      {
+        username: req.session.user,
+      },
+      {
+        $set: {
+          username: req.body.newName,
+        },
+      },
+      done
+    );
 
     function done(err, useData) {
       //verander de session van de gebruiker samen met het gerenderde data object
@@ -340,11 +348,11 @@ function changeUserName(req, res, next) {
       data.user.user = req.session.user;
 
       if (err) {
-        next(err)
+        next(err);
       } else {
         //render de pagina opnieuw om de nieuwe naam van de gebruiker te tonen
-        res.render('overview.ejs', {
-          data
+        res.render("overview.ejs", {
+          data,
         });
       }
     }
@@ -356,7 +364,7 @@ function changeUserName(req, res, next) {
 //******************* */
 function matches(req, res, next) {
   if (!req.session.user) {
-    res.redirect('/login')
+    res.redirect("/login");
   } else {
     // collectionProfiles.find().toArray(done)
 
@@ -364,21 +372,22 @@ function matches(req, res, next) {
     //   if (err) {
     //     next(err)
     //   } else {
-       
+
     //   }
     // }
-  
-    console.log(data)
-    res.render('matches.ejs', {
-      data: data
-    })
+
+    console.log(data);
+    res.render("matches.ejs", {
+      data: data,
+    });
   }
 }
 
 function profile(req, res, next) {
   let id = req.params.id;
 
-  collectionProfiles.findOne({
+  collectionProfiles.findOne(
+    {
       _id: new mongo.ObjectID(id),
     },
     done
@@ -395,34 +404,32 @@ function profile(req, res, next) {
   }
 }
 
-
 function createUserForm(req, res) {
   res.render("createUser.ejs", {
-    data
+    data,
   });
 }
 
-
-
 function deleteUserProfile(req, res, next) {
   if (!req.session.user) {
-    res.redirect('/login')
+    res.redirect("/login");
   } else {
-    var id = req.params.id
+    var id = req.params.id;
 
-    collectionProfiles.deleteOne({
-      _id: new mongo.ObjectID(id)
-    }, done)
+    collectionProfiles.deleteOne(
+      {
+        _id: new mongo.ObjectID(id),
+      },
+      done
+    );
 
     function done(err) {
       if (err) {
-        next(err)
+        next(err);
       } else {
-
         res.json({
-          status: 'ok'
-        })
-
+          status: "ok",
+        });
       }
     }
   }
