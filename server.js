@@ -9,12 +9,19 @@ const multer = require("multer");
 const ejsLint = require("ejs-lint");
 const bodyparser = require("body-parser");
 const bcrypt = require("bcrypt");
-const saltRounds = 10;
+const passport = require("passport");
+const flash = require("express-flash");
 const plainTextPassword = "dit_is_niet_mijn_wachtwoord";
 const upload = multer({
   dest: "public/upload/",
 });
 
+const initializePassport = require("./passport-config");
+initializePassport(
+  passport,
+  (email) => users.find((user) => user.email === email),
+  (id) => users.find((user) => user.id === id)
+);
 // database configuratie
 
 let db;
@@ -64,6 +71,9 @@ app
       resave: false,
     })
   )
+  .use(flash())
+  .use(passport.initialize())
+  .use(passport.session())
   .get("/register", registerForm)
   .get("/login", loginForm)
   .get("/add", createUserForm)
@@ -118,10 +128,10 @@ function registerForm(req, res) {
 
 async function registerUser(req, res, next) {
   try {
-    const hashedPassword = await bcrypt.hash(req.body.wachtwoord, 10);
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
     collectionUsers.insertOne({
       username: req.body.username,
-      email: req.body.emailadres,
+      email: req.body.email,
       wachtwoord: hashedPassword,
     });
     res.redirect("/add");
@@ -134,7 +144,7 @@ async function registerUser(req, res, next) {
 function compareCredentials(req, res) {
   collectionUsers.findOne(
     {
-      email: req.body.emailadres,
+      email: req.body.email,
     },
     done
   );
@@ -144,7 +154,7 @@ function compareCredentials(req, res) {
     if (err) {
       next(err);
     } else {
-      if (data.wachtwoord === req.body.wachtwoord) {
+      if (data.hashedPassword || data.password === req.body.password) {
         console.log("succesvol ingelogd :)");
         req.session.user = data.username;
         res.redirect("/findMatch");
@@ -168,8 +178,8 @@ function updatePassword(req, res) {
     },
     {
       $set: {
-        email: req.body.emailadres,
-        wachtwoord: req.body.wachtwoord,
+        email: req.body.email,
+        wachtwoord: req.body.password,
       },
     }
   );
