@@ -16,12 +16,7 @@ const upload = multer({
   dest: "public/upload/",
 });
 
-const initializePassport = require("./passport-config");
-initializePassport(
-  passport,
-  (email) => users.find((user) => user.email === email),
-  (id) => users.find((user) => user.id === id)
-);
+//require("./passport-config")(passport);
 // database configuratie
 
 let db;
@@ -154,7 +149,7 @@ function compareCredentials(req, res) {
     if (err) {
       next(err);
     } else {
-      if (data.hashedPassword || data.password === req.body.password) {
+      if (data.hashedPassword === req.body.hashedPassword) {
         console.log("succesvol ingelogd :)");
         req.session.user = data.username;
         res.redirect("/findMatch");
