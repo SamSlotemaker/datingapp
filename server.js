@@ -409,19 +409,12 @@ function profile(req, res, next) {
             console.log(err);
             next(err);
           } else {
-
             profileObject.userLogin = useData
-
-
             res.render("detail.ejs", {
               data: profileObject,
             });
           }
-
         })
-
-
-
     }
   }
 }
