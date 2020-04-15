@@ -387,7 +387,7 @@ function matches(req, res, next) {
 
 function profile(req, res, next) {
   let id = req.params.id;
-
+  let profileObject;
   collectionProfiles.findOne({
       _id: new mongo.ObjectID(id),
     },
@@ -398,9 +398,30 @@ function profile(req, res, next) {
     if (err) {
       next(err);
     } else {
-      res.render("detail.ejs", {
-        data: data,
-      });
+
+      profileObject = data;
+
+      collectionUsers.findOne({
+          username: data.username
+        },
+        (err, useData) => {
+          if (err) {
+            console.log(err);
+            next(err);
+          } else {
+
+            profileObject.userLogin = useData
+
+
+            res.render("detail.ejs", {
+              data: profileObject,
+            });
+          }
+
+        })
+
+
+
     }
   }
 }
