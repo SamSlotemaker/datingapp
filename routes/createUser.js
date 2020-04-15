@@ -2,9 +2,12 @@ const express = require("express");
 let router = express.Router();
 const server = require('../server.js');
 const data = server.data;
-
-//database
-let collectionProfiles;
+const multer = require("multer");
+const upload = multer({
+    dest: "public/upload/",
+  });
+  
+//databaselet collectionProfiles;
 let collectionUsers;
 let collectionAnswers = null;
 const MongoClient = require("mongodb").MongoClient;
@@ -18,7 +21,11 @@ const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
-
+function registerForm(req, res) {
+    res.render("register.ejs", {
+      data
+    });
+  }
 
 //database connect
 client.connect(function (err, client) {
@@ -31,33 +38,33 @@ client.connect(function (err, client) {
 });
 
 router.get('/', (req, res) => {
-    res.render("login.ejs", {
+    res.render("createUser.ejs", {
         data
-    });
+      });
 })
 
 
-router.post('/', (req, res) => {
-    collectionUsers.findOne({
-        email: req.body.emailadres
-    }, done);
-
-    function done(err, data) {
-        // console.log(data);
-        if (err) {
-            next(err);
+router.post('/', upload.single("foto"), (req, res) => {
+        if (!req.session.user) {
+          res.redirect('/login')
         } else {
-            if (data.wachtwoord === req.body.wachtwoord) {
-                console.log("succesvol ingelogd :)");
-                req.session.user = data.username;
-                res.redirect("/findMatch");
-                // res.send("hoi");
+          collectionProfiles.insertOne({
+            username: req.session.user,
+            naam: req.body.naam,
+            foto: req.file ? req.file.filename : null,
+            leeftijd: req.body.leeftijd,
+            bio: req.body.bio
+          }, done)
+      
+          function done(err, data) {
+            if (err) {
+              next(err)
             } else {
-                console.log("login mislukt :(");
-                res.redirect("/login");
+              res.redirect('/findMatch')
             }
+          }
         }
-    }
-})
+      }
+)
 
 module.exports = router;

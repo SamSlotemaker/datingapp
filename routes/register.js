@@ -19,7 +19,6 @@ const client = new MongoClient(uri, {
   useUnifiedTopology: true
 });
 
-
 //database connect
 client.connect(function (err, client) {
   if (err) {
@@ -31,32 +30,28 @@ client.connect(function (err, client) {
 });
 
 router.get('/', (req, res) => {
-    res.render("login.ejs", {
-        data
-    });
+        res.render("register.ejs", {
+          data
+        });
 })
 
 
 router.post('/', (req, res) => {
-    collectionUsers.findOne({
-        email: req.body.emailadres
-    }, done);
-
+    collectionUsers.insertOne({
+        username: req.body.username,
+        email: req.body.emailadres,
+        wachtwoord: req.body.wachtwoord,
+      },
+      done
+    );
+  
     function done(err, data) {
-        // console.log(data);
-        if (err) {
-            next(err);
-        } else {
-            if (data.wachtwoord === req.body.wachtwoord) {
-                console.log("succesvol ingelogd :)");
-                req.session.user = data.username;
-                res.redirect("/findMatch");
-                // res.send("hoi");
-            } else {
-                console.log("login mislukt :(");
-                res.redirect("/login");
-            }
-        }
+      if (err) {
+        next(err);
+      } else {
+        req.session.user = req.body.username;
+        res.redirect("/add");
+      }
     }
 })
 
