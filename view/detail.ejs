@@ -6,27 +6,22 @@
 
 <body>
   <%- include ('header.ejs') %>
+  <a href="/matches">Back to matches</a>
+
   <h1>
     <%= data.naam %>
   </h1>
   <% if (data.foto) { %>
-<img
-  alt
-  src="/upload/<%= data.foto %>"
->
-<% } %>
+  <img alt src="/upload/<%= data.foto %>">
+  <% } %>
   <p>
     <%= data.leeftijd %>
   </p>
   <p>
     <%= data.bio %>
   </p>
-  <button
-      id=js-remove
-      data-id="<%= data._id %>"
-    >Unmatch</button>
-  <p><a href="/start">Back to matches</a></p>
-  <script src=/index.js></script>
-</body>
+  <a class="linkButton" href="mailto:<%= data.userLogin.email%>">Message</a>
 
-</html>
+  <h1></h1>
+  <button id=js-remove data-id="<%= data._id %>">Unmatch</button>
+  <script src=/index.js> </script> </body> </html>
