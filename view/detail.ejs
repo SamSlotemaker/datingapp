@@ -6,14 +6,17 @@
 
 <body>
   <%- include ('header.ejs') %>
-  <a href="/matches">Back to matches</a>
+<a href="/matches">Back to matches</a>
 
   <h1>
     <%= data.naam %>
   </h1>
   <% if (data.foto) { %>
-  <img alt src="/upload/<%= data.foto %>">
-  <% } %>
+<img
+  alt
+  src="/upload/<%= data.foto %>"
+>
+<% } %>
   <p>
     <%= data.leeftijd %>
   </p>
@@ -21,7 +24,11 @@
     <%= data.bio %>
   </p>
   <a class="linkButton" href="mailto:<%= data.userLogin.email%>">Message</a>
+  <button
+      id=js-remove
+      data-id="<%= data._id %>"
+    >Unmatch</button>
+  <script src=/index.js></script>
+</body>
 
-  <h1></h1>
-  <button id=js-remove data-id="<%= data._id %>">Unmatch</button>
-  <script src=/index.js> </script> </body> </html>
+</html>
