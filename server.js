@@ -16,7 +16,6 @@ const upload = multer({
 });
 
 // database configuratie
-
 let db;
 let collectionProfiles;
 let collectionUsers;
@@ -54,7 +53,10 @@ const register = require('./routes/register.js');
 const createUser = require('./routes/createUser.js');
 const findMatch = require('./routes/findMatch.js')
 const overview = require('./routes/get/overview.js')
-
+const matches = require('./routes/get/matches.js')
+const logout = require('./routes/get/logout.js')
+const notFound = require('./routes/get/notFound.js')
+const changeUserName = require('./routes/post/changeName.js')
 //routes
 app
   .use(express.static("public"))
@@ -78,9 +80,9 @@ app
   .use("/add", createUser)
   .use("/findMatch", findMatch)
   .use("/overview", overview)
-  .get("/matches", matches)
-  .get("/logout", logout)
-  .post("/changeName", changeUserName)
+  .use("/matches", matches)
+  .use("/logout", logout)
+  .use("/changeName", changeUserName)
   .get("/:id", profile)
   .delete("/:id", deleteUserProfile)
   .use(notFound)
@@ -97,38 +99,6 @@ let images = [
 
 exports.images = images;
 
-
-//Register en Login functie
-function gebruikers(req, res, next) {
-  database.collection("users").find().toArray(done);
-
-  function done(err, data) {
-    if (err) {
-      next(err);
-    } else {
-      res.render("login.ejs", {
-        data: data
-      });
-    }
-  }
-}
-
-//Update password function
-function updatePassword(req, res) {
-  let users = req.session.emailadres;
-  console.log(users._id);
-
-  database.collection("users").updateOne({
-    _id: mongo.ObjectId(users._id)
-  }, {
-    $set: {
-      email: req.body.emailadres,
-      wachtwoord: req.body.wachtwoord,
-    },
-  });
-  res.redirect("/login");
-}
-
 //vul data met foto's; op imageUrlX
 function fillImages() {
   for (let i = 0; i < images.length; i++) {
@@ -138,68 +108,9 @@ function fillImages() {
 }
 fillImages();
 
-function changeUserName(req, res, next) {
-  if (!req.session.user) {
-    res.redirect('/login')
-  } else {
-    //find de huidige gebruiker in de database en update zijn naam naar de nieuw ingevulde naam
-    collectionAnswers.findOneAndUpdate({
-      username: req.session.user
-    }, {
-      $set: {
-        username: req.body.newName
-      }
-    }, done)
-
-    function done(err, useData) {
-      //verander de session van de gebruiker samen met het gerenderde data object
-      req.session.user = req.body.newName;
-      data.user.user = req.session.user;
-
-      if (err) {
-        next(err)
-      } else {
-        //render de pagina opnieuw om de nieuwe naam van de gebruiker te tonen
-        res.render('overview.ejs', {
-          data
-        });
-      }
-    }
-  }
-}
-
-function logout(req, res, next) {
-  if (req.session.user) {
-    req.session.destroy()
-  }
-
-  res.redirect('/login');
-}
-
 // ******************* */
 //FEATURE MAX
 //******************* */
-function matches(req, res, next) {
-  if (!req.session.user) {
-    res.redirect('/login')
-  } else {
-    // collectionProfiles.find().toArray(done)
-
-    // function done(err, data) {
-    //   if (err) {
-    //     next(err)
-    //   } else {
-
-    //   }
-    // }
-
-    console.log(data)
-    res.render('matches.ejs', {
-      data: data
-    })
-  }
-}
-
 function profile(req, res, next) {
   let id = req.params.id;
   let profileObject;
@@ -260,8 +171,5 @@ function deleteUserProfile(req, res, next) {
 
 //ongeldige pagina
 
-function notFound(req, res) {
-  res.status(404).render("not-found.ejs");
-}
 
 app.listen(port, () => console.log(`app running on port: ${port}`));
