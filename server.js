@@ -5,6 +5,7 @@ require("dotenv").config();
 const session = require("express-session");
 const ejs = require("ejs");
 const mongo = require("mongodb");
+const mongoose = require('mongoose');
 const multer = require("multer");
 const ejsLint = require("ejs-lint");
 const bodyparser = require("body-parser");
@@ -14,38 +15,62 @@ const plainTextPassword = "dit_is_niet_mijn_wachtwoord";
 const upload = multer({
   dest: "public/upload/",
 });
+const Schema = mongoose.Schema;
 
 // database configuratie
 
-let db;
-let collectionProfiles;
-let collectionUsers;
-let collectionAnswers = null;
-const MongoClient = require("mongodb").MongoClient;
+let db = mongoose.connection;
+/*let collectionAnswers = mongo.db("datingapp").collection("userAnswers");
+let collectionProfiles = mongo.db("datingapp").collection("profiles");
+let collectionUsers = mongo.db("datingapp").collection("users");*/
 const uri =
-  "mongodb+srv://" +
+  'mongodb+srv://' +
   process.env.DB_USER +
-  ":" +
+  ':' +
   process.env.DB_PASS +
-  "@datingapp-alfy7.mongodb.net/test?retryWrites=true&w=majority";
-const client = new MongoClient(uri, {
-  useNewUrlParser: true, useUnifiedTopology: true
+  '@datingapp-alfy7.mongodb.net/test?retryWrites=true&w=majority';
+mongoose.connect(uri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
+
+db.on('connected', () => {
+  console.log('Mongoose connected')
 });
 
 //database connect
-client.connect(function (err, client) {
+/*mongoose.connect(function(err, client) {
   if (err) {
     throw err;
-  }
-  collectionAnswers = client.db("datingapp").collection("userAnswers");
-  collectionProfiles = client.db("datingapp").collection("profiles");
-  collectionUsers = client.db("datingapp").collection("users")
-});
+  }*/
+//});
 
 let data = {
   title: "datingapp"
 };
 
+//Schemas
+const ProfileSchema = new Schema({
+  _id: String,
+  username: String,
+  naam: String,
+  foto: String,
+  leeftijd: Number,
+  bio: String,
+  answerOne: Number,
+  answerThree: Number,
+  answerTwo: Number
+});
+
+/*const UserSchema = new Schema({
+  username: String,
+  email: String,
+  wachtwoord: String
+});*/
+
+//Models
+const ProfileModel = mongoose.model('Profile', ProfileSchema);
+//const UserModel = mongoose.model('User', UserSchema);
 
 //routes
 app
@@ -70,7 +95,7 @@ app
   .get("/findMatch", findMatch)
   .get("/overview", overview)
   .get("/matches", matches)
-  .post("/registerUser", registerUser )
+  .post("/registerUser", registerUser)
   .post("/login", compareCredentials)
   .post("/postQuestionAnswers", postQuestionAnswers)
   .post("/changeName", changeUserName)
@@ -92,7 +117,7 @@ let images = [
 
 //Register en Login functie
 function gebruikers(req, res, next) {
-  database.collection("users").find().toArray(done);
+  db.collection("users").find().toArray(done);
 
   function done(err, data) {
     if (err) {
@@ -118,7 +143,7 @@ function registerForm(req, res) {
 }
 
 function registerUser(req, res, next) {
-  collectionUsers.insertOne({
+  db.collection("users").insertOne({
       username: req.body.username,
       email: req.body.emailadres,
       wachtwoord: req.body.wachtwoord,
@@ -137,7 +162,7 @@ function registerUser(req, res, next) {
 }
 
 function compareCredentials(req, res) {
-  collectionUsers.findOne({
+  db.collection("users").findOne({
     email: req.body.emailadres
   }, done);
 
@@ -165,7 +190,7 @@ function updatePassword(req, res) {
   let users = req.session.emailadres;
   console.log(users._id);
 
-  database.collection("users").updateOne({
+  db.collection("users").updateOne({
     _id: mongo.ObjectId(users._id)
   }, {
     $set: {
@@ -191,11 +216,15 @@ function createAccountInformation(req, res, next) {
   if (!req.session.user) {
     res.redirect('/login')
   } else {
-    collectionProfiles.insertOne({
-      username: req.session.user,
-      naam: req.body.naam,
-      foto: req.file ? req.file.filename : null,
-      leeftijd: req.body.leeftijd,
+    ProfileModel.create({
+      username: req.session.user
+    }, {
+      naam: req.body.naam
+    }, {
+      foto: req.file ? req.file.filename : null
+    }, {
+      leeftijd: req.body.leeftijd
+    }, {
       bio: req.body.bio
     }, done)
 
@@ -226,7 +255,7 @@ function postQuestionAnswers(req, res, next) {
   if (!req.session.user) {
     res.redirect('/login')
   } else {
-    collectionProfiles.findOneAndUpdate({
+    ProfileModel.findOneAndUpdate({
       username: req.session.user
     }, {
       $set: {
@@ -252,7 +281,7 @@ function overview(req, res, next) {
   if (!req.session.user) {
     res.redirect('/login')
   } else {
-    collectionProfiles.findOne({
+    ProfileModel.findOne({
       username: req.session.user
     }, done)
 
@@ -282,13 +311,11 @@ function overview(req, res, next) {
       }
 
       //verzamel alle users die niet gelijk zijn aan de huidige gebruiker en stop ze in een array
-      collectionProfiles
-        .find({
-          username: {
-            $ne: req.session.user,
-          },
-        })
-        .toArray(doneTwo);
+      ProfileModel.find({
+        username: {
+          $ne: req.session.user,
+        },
+      }).toArray(doneTwo);
 
       function doneTwo(err, useData) {
         if (err) {
@@ -307,7 +334,7 @@ function overview(req, res, next) {
               data.matches.push(useData[i]);
               console.log(`${useData[i].username} is toegevoegd aan matches`);
             }
-            
+
             console.log(data.matches);
           }
 
@@ -364,10 +391,10 @@ function matches(req, res, next) {
     //   if (err) {
     //     next(err)
     //   } else {
-       
+
     //   }
     // }
-  
+
     console.log(data)
     res.render('matches.ejs', {
       data: data
@@ -378,7 +405,7 @@ function matches(req, res, next) {
 function profile(req, res, next) {
   let id = req.params.id;
 
-  collectionProfiles.findOne({
+  ProfileModel.findOne({
       _id: new mongo.ObjectID(id),
     },
     done
@@ -410,7 +437,7 @@ function deleteUserProfile(req, res, next) {
   } else {
     var id = req.params.id
 
-    collectionProfiles.deleteOne({
+    ProfileModel.deleteOne({
       _id: new mongo.ObjectID(id)
     }, done)
 
