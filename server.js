@@ -49,6 +49,8 @@ let data = {
 
 exports.data = data;
 
+const loginForm = require('./routes/login.js');
+
 //routes
 app
   .use(express.static("public"))
@@ -67,14 +69,13 @@ app
     })
   )
   .get("/register", registerForm)
-  .get("/login", loginForm)
+  .use("/login", loginForm)
   .get("/add", createUserForm)
   .get("/findMatch", findMatch)
   .get("/overview", overview)
   .get("/matches", matches)
   .get("/logout", logout)
-  .post("/registerUser", registerUser)
-  .post("/login", compareCredentials)
+  .post("/register", registerUser)
   .post("/postQuestionAnswers", postQuestionAnswers)
   .post("/changeName", changeUserName)
   .post("/createProfile", upload.single("foto"), createAccountInformation)
@@ -108,11 +109,11 @@ function gebruikers(req, res, next) {
   }
 }
 
-function loginForm(req, res) {
-  res.render("login.ejs", {
-    data
-  });
-}
+// function loginForm(req, res) {
+//   res.render("login.ejs", {
+//     data
+//   });
+// }
 
 function registerForm(req, res) {
   res.render("register.ejs", {
@@ -120,48 +121,48 @@ function registerForm(req, res) {
   });
 }
 
-// function registerUser(req, res, next) {
-//   collectionUsers.insertOne({
-//       username: req.body.username,
-//       email: req.body.emailadres,
-//       wachtwoord: req.body.wachtwoord,
-//     },
-//     done
-//   );
-
-//   function done(err, data) {
-//     if (err) {
-//       next(err);
-//     } else {
-//       req.session.user = req.body.username;
-//       res.redirect("/add");
-//     }
-//   }
-// }
-
-function compareCredentials(req, res) {
-  collectionUsers.findOne({
-    email: req.body.emailadres
-  }, done);
-
+function registerUser(req, res, next) {
+  collectionUsers.insertOne({
+      username: req.body.username,
+      email: req.body.emailadres,
+      wachtwoord: req.body.wachtwoord,
+    },
+    done
+  );
 
   function done(err, data) {
-    // console.log(data);
     if (err) {
       next(err);
     } else {
-      if (data.wachtwoord === req.body.wachtwoord) {
-        console.log("succesvol ingelogd :)");
-        req.session.user = data.username;
-        res.redirect("/findMatch");
-        // res.send("hoi");
-      } else {
-        console.log("login mislukt :(");
-        res.redirect("/login");
-      }
+      req.session.user = req.body.username;
+      res.redirect("/add");
     }
   }
 }
+
+// function compareCredentials(req, res) {
+//   collectionUsers.findOne({
+//     email: req.body.emailadres
+//   }, done);
+
+
+//   function done(err, data) {
+//     // console.log(data);
+//     if (err) {
+//       next(err);
+//     } else {
+//       if (data.wachtwoord === req.body.wachtwoord) {
+//         console.log("succesvol ingelogd :)");
+//         req.session.user = data.username;
+//         res.redirect("/findMatch");
+//         // res.send("hoi");
+//       } else {
+//         console.log("login mislukt :(");
+//         res.redirect("/login");
+//       }
+//     }
+//   }
+// }
 
 //Update password function
 function updatePassword(req, res) {
