@@ -29,7 +29,8 @@ const uri =
   process.env.DB_PASS +
   "@datingapp-alfy7.mongodb.net/test?retryWrites=true&w=majority";
 const client = new MongoClient(uri, {
-  useNewUrlParser: true, useUnifiedTopology: true
+  useNewUrlParser: true,
+  useUnifiedTopology: true
 });
 
 //database connect
@@ -70,7 +71,8 @@ app
   .get("/findMatch", findMatch)
   .get("/overview", overview)
   .get("/matches", matches)
-  .post("/registerUser", registerUser )
+  .get("/logout", logout)
+  .post("/registerUser", registerUser)
   .post("/login", compareCredentials)
   .post("/postQuestionAnswers", postQuestionAnswers)
   .post("/changeName", changeUserName)
@@ -307,7 +309,7 @@ function overview(req, res, next) {
               data.matches.push(useData[i]);
               console.log(`${useData[i].username} is toegevoegd aan matches`);
             }
-            
+
             console.log(data.matches);
           }
 
@@ -351,6 +353,14 @@ function changeUserName(req, res, next) {
   }
 }
 
+function logout(req, res, next) {
+  if (req.session.user) {
+    req.session.destroy()
+  }
+
+  res.redirect('/login');
+}
+
 // ******************* */
 //FEATURE MAX
 //******************* */
@@ -364,10 +374,10 @@ function matches(req, res, next) {
     //   if (err) {
     //     next(err)
     //   } else {
-       
+
     //   }
     // }
-  
+
     console.log(data)
     res.render('matches.ejs', {
       data: data
