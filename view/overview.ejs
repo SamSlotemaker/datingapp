@@ -4,46 +4,47 @@
 
 <body>
 
-    <%- include('header.ejs') %>
+  <%- include('header.ejs') %>
 
-    <main class="list">
+  <main class="list">
 
-        <h1>Matches</h1>
+    <h1>Matches</h1>
 
-        <ul></ul>
-        <ul></ul>
+    <ul></ul>
+    <ul></ul>
 
-        <h2> Welkom, <%= data.user.username %>.</h2>
-        <p>Je hebt geantwoord met:</p>
-        <ul class="answerList">
-            <li><img src=<%= data.user.answerOneImg %> alt="antwoord op vraag 1"> </li>
-            <li><img src=<%= data.user.answerTwoImg %> alt="antwoord op vraag 2"></li>
-            <li><img src=<%= data.user.answerThreeImg %> alt="antwoord op vraag 3"></li>
+    <h2> Welkom,
+      <%= data.user.username %>.</h2>
+    <p>Je hebt geantwoord met:</p>
+    <ul class="answerList">
+      <li><img src=<%=data.user.answerOneImg %> alt="antwoord op vraag 1"> </li>
+      <li><img src=<%=data.user.answerTwoImg %> alt="antwoord op vraag 2"></li>
+      <li><img src=<%=data.user.answerThreeImg %> alt="antwoord op vraag 3"></li>
 
-        </ul>
+    </ul>
 
-        <section>
-            <h3>Je bent gematcht met:</h3>
-            <ul>
-                <% for (var index = 0; index < data.matches.length; index++) { %>
-                <li>
-                    <%= data.matches[index].username %>
-                </li>
+    <section>
+      <h3>Je bent gematcht met:</h3>
+      <ul>
+        <% for (var index = 0; index < data.matches.length; index++) { %>
+        <li>
+          <%= data.matches[index].username %>
+        </li>
 
-                <% } %>
-            </ul>
-        </section>
-        <a href="/matches" class="linkButton">See matches</a>
-        <a class="linkButton" href="/findMatch">Try again</a>
+        <% } %>
+      </ul>
+    </section>
+    <a href="/matches" class="linkButton">See matches</a>
+    <a class="linkButton" href="/findMatch">Try again</a>
 
-        <form action="/changeName" method="POST" class="formulier">
-            <input type="text" name="newName">
-            <button type="submit" class="linkButton">Verander naam</button>
-        </form>
-    </main>
+    <form action="/changeName" method="POST" class="formulier">
+      <input type="text" name="newName" placeholder="Nieuwe Naam">
+      <button type="submit" class="linkButton">Verander naam</button>
+    </form>
+  </main>
 
 
-    <%- include('footer.ejs') %>
+  <%- include('footer.ejs') %>
 
 </body>
 
