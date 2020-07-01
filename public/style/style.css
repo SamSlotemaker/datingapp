@@ -5,14 +5,12 @@
 * {
   font-family: 'Montserrat', sans-serif;
   box-sizing: border-box;
-
 }
 
 body {
   margin: 0;
   background-color: black;
   color: #fb90b7;
-
 }
 
 h1 {
@@ -99,7 +97,7 @@ nav img {
   font-weight: 600;
   text-transform: uppercase;
   color: #fff;
-  background-color: #000;
+  background-color: #d01257;
   border-color: #000;
   border-radius: 5em;
   text-align: center;
@@ -107,7 +105,21 @@ nav img {
   width: 10em;
 }
 
-
+a {
+  display: block;
+  padding: 1em 1.5em;
+  font-size: 1em;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #fff;
+  background-color: #d01257;
+  border-color: #000;
+  border-radius: 5em;
+  text-align: center;
+  margin: 0 auto;
+  margin-top: 1em;
+  width: 10em;
+}
 
 /* CHOICE SCREEN */
 .choice a {
@@ -167,9 +179,7 @@ nav img {
   text-align: center;
 }
 
-
 /* RADIO BUTTON STYLING */
-
 /* HIDE RADIO */
 [type=radio] {
   position: absolute;
@@ -188,20 +198,14 @@ nav img {
   filter: brightness(100%)
 }
 
-
-
-
 /* PROGRESSIVE FORM */
-
 /* .choice .tab {
   display: none;
 } */
-
 /* Mark the active step: */
 .step.active {
   opacity: 1;
 }
-
 
 /* LIST */
 .list p {
@@ -224,7 +228,6 @@ nav img {
 }
 
 .answerList img {
-
   object-fit: cover;
   height: 5em;
   width: 5em;
@@ -246,7 +249,6 @@ nav img {
 .formulier button {
   width: 25%;
 }
-
 
 .add-profile {
   color: #fb90b7;
@@ -277,7 +279,6 @@ nav img {
   }
 }
 
-
 /* BIG SCREENS */
 @media screen and (min-width: 1000px) {
   .choice div label {
@@ -301,7 +302,6 @@ nav img {
     /* width: 50%; */
   }
 
-
   .choice label:first-of-type img {
     border-bottom: none;
     border-right: solid 2px #D75A4A;
@@ -315,11 +315,8 @@ nav img {
   }
 
   .choice .heart {
-
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-
   }
-
 }
