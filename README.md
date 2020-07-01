@@ -2,21 +2,36 @@
 
 ## Table of content
 * [Over de app](#over-de-app)
-  * [Feature](#feature)
 * [Getting started](#getting-started)
   * [Installatie](#installatie)
   * [Gebruik](#gebruik)
 * [Documentatie](#documentatie)
-* [Auteur](#auteur)
+* [Auteurs](#auteurs)
 * [Licensie](#licensie)
 * [Bronnenlijst](#bronnenlijst)
 
 ## Over de app
 
-Mijn applicatie is een datingapp, waar gebruikers vragen beantwoorden en zo kunnen matchen met mensen die een soortgelijke interesse hebben. 
+Onze applicatie is een datingapp, waar gebruikers tussen twee fotos kunnen kiezen en zo kunnen matchen met mensen die een soortgelijke interesse hebben. De foto's zijn van auto's en motors om zo autoliefhebbers met elkaar te kunnen matchen. 
 
-### Feature
-De gebruiker maakt een account aan en logt vervolgens in met zijn gegevens. Wanneer deze is ingelogd maakt hij een profiel aan, waarna hij uit bepaalde foto's kan kiezen om zijn interesses aan te geven. Hierna worden zijn matches getoond (antwoorden van gebruikers komen 100% overeen) en kan hij zijn matches bekijken op een detailscherm. 
+<img width="1088" alt="Screenshot 2020-07-01 at 12 43 35" src="https://user-images.githubusercontent.com/51541543/86235309-86403780-bb98-11ea-8cb4-afe93c77da96.png">
+
+Wanneer je jouw keuze hebt gemaakt klik je op 'next question' om de volgende vraag te zien krijgen.  Wanneer je alle vragen beantwoord hebt dan krijg je de matches te zien.
+
+<img width="560" alt="Screenshot 2020-07-01 at 12 47 37" src="https://user-images.githubusercontent.com/51541543/86235704-1e3e2100-bb99-11ea-86b3-73a808286b26.png">
+
+Onder de matches zijn twee knoppen de ene knop is 'see matches' de andere is 'try again'
+
+<img width="775" alt="Screenshot 2020-07-01 at 13 08 53" src="https://user-images.githubusercontent.com/51541543/86237693-85110980-bb9c-11ea-90af-9baede1e9508.png">
+
+De 'see matches' knop stuurt je naar het scherm waar je de profielen van je matches te zien krijgt. 
+
+<img width="310" alt="Screenshot 2020-07-01 at 13 13 42" src="https://user-images.githubusercontent.com/51541543/86237788-b5f13e80-bb9c-11ea-9fdc-c27864399322.png">
+
+Als je op 'try again' klikt wordt je weer terug gebracht naar de vragen zodat je die opnieuw kan beantwoorden.
+
+
+
 
 ## Getting started
 ### Installatie
@@ -53,10 +68,19 @@ We hebben gekozen voor de volgende topics:
 * Het deployen van de applicatie 
 * Opsplitsen van de routes met modules
 
+### Sjoerd
+* Het hashen van wachtwoorden
+* User authentication toepassen
+
+### Max
+* Mongoose gebruiken voor het database
+
 Het onderzoek hiervan staat in de wiki
 
 ## Documentatie
-De volledige documentatie van mijn onderzoek en het proces kunt u vinden op mijn [wiki](https://github.com/SamSlotemaker/blok_tech/wiki)
+De documentatie van team staat in de [wiki](https://github.com/SamSlotemaker/datingapp/wiki)
+
+De volledige documentatie van Sam's onderzoek en het proces kunt u vinden op Sam's [wiki](https://github.com/SamSlotemaker/blok_tech/wiki)
 
 ## Auteurs
 * **Sam Slotemaker** 
@@ -67,7 +91,7 @@ De volledige documentatie van mijn onderzoek en het proces kunt u vinden op mijn
 Dit project is gelicenseerd onder de MIT license. Zie het [LICENSE.md](LICENSE.md) bestand voor meer informatie.
 
 ## Bronnenlijst
-Tijdens dit project heb ik gebruik gemaakt van verschillende bronnen, de belangrijkste zijn:
+Tijdens dit project hebben wij gebruik gemaakt van verschillende bronnen, de belangrijkste zijn:
 * https://stackoverflow.com/questions/4855430/how-can-i-send-a-variable-to-a-form-using-this-javascript-function
 * https://stackoverflow.com/questions/17541614/use-images-instead-of-radio-buttons
 * https://www.w3schools.com/howto/howto_js_form_steps.asp
