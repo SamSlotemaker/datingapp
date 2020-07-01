@@ -17,24 +17,25 @@ const upload = multer({
 });
 const Schema = mongoose.Schema;
 
-// database configuratie
+/* const client = new MongoClient(uri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+}); */
 
-let db = mongoose.connection;
-/*let collectionAnswers = mongo.db("datingapp").collection("userAnswers");
-let collectionProfiles = mongo.db("datingapp").collection("profiles");
-let collectionUsers = mongo.db("datingapp").collection("users");*/
-const uri =
-  'mongodb+srv://' +
-  process.env.DB_USER +
-  ':' +
-  process.env.DB_PASS +
-  '@datingapp-alfy7.mongodb.net/test?retryWrites=true&w=majority';
+// database configuratie
+/*let collectionAnswers = client.db("datingapp").collection("userAnswers");
+let collectionProfiles = client.db("datingapp").collection("profiles");
+let collectionUsers = client.db("datingapp").collection("users");*/
+
+const uri = 'mongodb+srv://' + process.env.DB_USER + ':' + process.env.DB_PASS + '@datingapp-alfy7.mongodb.net/test?retryWrites=true&w=majority';
 mongoose.connect(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
 
-db.on('connected', () => {
+const client = mongoose.connection;
+
+client.on('connected', () => {
   console.log('Mongoose connected')
 });
 
@@ -216,15 +217,11 @@ function createAccountInformation(req, res, next) {
   if (!req.session.user) {
     res.redirect('/login')
   } else {
-    ProfileModel.create({
-      username: req.session.user
-    }, {
-      naam: req.body.naam
-    }, {
-      foto: req.file ? req.file.filename : null
-    }, {
-      leeftijd: req.body.leeftijd
-    }, {
+    db.collection("profiles").insertOne({
+      username: req.session.user,
+      naam: req.body.naam,
+      foto: req.file ? req.file.filename : null,
+      leeftijd: req.body.leeftijd,
       bio: req.body.bio
     }, done)
 
@@ -255,7 +252,7 @@ function postQuestionAnswers(req, res, next) {
   if (!req.session.user) {
     res.redirect('/login')
   } else {
-    ProfileModel.findOneAndUpdate({
+    db.collection("profiles").findOneAndUpdate({
       username: req.session.user
     }, {
       $set: {
@@ -281,7 +278,7 @@ function overview(req, res, next) {
   if (!req.session.user) {
     res.redirect('/login')
   } else {
-    ProfileModel.findOne({
+    db.collection("profiles").findOne({
       username: req.session.user
     }, done)
 
@@ -311,7 +308,7 @@ function overview(req, res, next) {
       }
 
       //verzamel alle users die niet gelijk zijn aan de huidige gebruiker en stop ze in een array
-      ProfileModel.find({
+      db.collection("profiles").find({
         username: {
           $ne: req.session.user,
         },
@@ -405,7 +402,7 @@ function matches(req, res, next) {
 function profile(req, res, next) {
   let id = req.params.id;
 
-  ProfileModel.findOne({
+  db.collection("profiles").findOne({
       _id: new mongo.ObjectID(id),
     },
     done
@@ -437,7 +434,7 @@ function deleteUserProfile(req, res, next) {
   } else {
     var id = req.params.id
 
-    ProfileModel.deleteOne({
+    db.collection("profiles").deleteOne({
       _id: new mongo.ObjectID(id)
     }, done)
 
